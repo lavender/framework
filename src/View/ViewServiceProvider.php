@@ -4,6 +4,7 @@ namespace Lavender\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\QueryException;
 use Illuminate\View\Factory;
+use Lavender\View\Database\Theme;
 use Lavender\Workflow\Database\Workflow;
 
 class ViewServiceProvider extends ServiceProvider
