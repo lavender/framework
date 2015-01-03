@@ -1,7 +1,7 @@
 <?php
 namespace Lavender\Workflow\Interfaces;
 
-interface ModelInterface
+interface WorkflowInterface
 {
     public function __construct(RepositoryInterface $repo, RendererInterface $renderer);
 

@@ -2,11 +2,11 @@
 namespace Lavender\Workflow\Services;
 
 use Lavender\Workflow\Exceptions\StateException;
-use Lavender\Workflow\Interfaces\ModelInterface;
+use Lavender\Workflow\Interfaces\WorkflowInterface;
 use Lavender\Workflow\Interfaces\RendererInterface;
 use Lavender\Workflow\Interfaces\RepositoryInterface;
 
-class Workflow implements ModelInterface
+class Workflow implements WorkflowInterface
 {
     /**
      * Workflow repository

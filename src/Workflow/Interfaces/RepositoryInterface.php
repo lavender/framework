@@ -15,5 +15,5 @@ interface RepositoryInterface
 
     public function findBySession();
 
-    public function model(ModelInterface $model);
+    public function model(WorkflowInterface $model);
 }

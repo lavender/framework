@@ -1,6 +1,6 @@
 <?php namespace Lavender\Workflow\Services;
 
-use Lavender\Workflow\Interfaces\ModelInterface;
+use Lavender\Workflow\Interfaces\WorkflowInterface;
 use Lavender\Workflow\Interfaces\ResolverInterface;
 
 class Resolver implements ResolverInterface
@@ -25,10 +25,10 @@ class Resolver implements ResolverInterface
      * Register a new workflow resolver.
      *
      * @param  string $workflow
-     * @param  ModelInterface $model
+     * @param  WorkflowInterface $model
      * @return void
      */
-    public function register($workflow, ModelInterface $model)
+    public function register($workflow, WorkflowInterface $model)
     {
         $this->resolvers[$workflow] = $model;
     }

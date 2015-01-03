@@ -12,7 +12,7 @@ class MessageBag
      * @param $type
      * @return mixed
      */
-    private function _get($type = null)
+    private function get($type = null)
     {
         return \Session::pull($this->_key($type), new Message([]));
     }
@@ -23,10 +23,10 @@ class MessageBag
      * @param $type
      * @param $message
      */
-    private function _add($type, $message)
+    private function add($type, $message)
     {
         // get existing message bag or create a new one
-        $messages = $this->_get($type);
+        $messages = $this->get($type);
 
         // merge our new messages into the message bag
         $messages->merge((array)$message);
@@ -41,9 +41,9 @@ class MessageBag
      */
     private function _key($type = null)
     {
-        if($type) return "cms.messages.{$type}";
+        if($type) return "lavender.messages.{$type}";
 
-        return "cms.messages";
+        return "lavender.messages";
     }
 
     /**
@@ -57,10 +57,11 @@ class MessageBag
     /**
      * Dynamically retrieve messages.
      *
-     * @param  string $type
+     * @param $method
+     * @param $params
      * @return mixed
      */
-    public static function __callStatic($method, $params)
+    public function __call($method, $params)
     {
         $params = $params ? $params[0] : null;
 
@@ -70,11 +71,11 @@ class MessageBag
 
             if(in_array($type, \Config::get('store.message_types'))){
 
-                return call_user_func([new static, '_' . $method], $type, $params);
+                return $this->$method($type, $params);
 
             } elseif($method == 'get' && $params){
 
-                return call_user_func([new static, '_get'], $params);
+                return $this->get($params);
 
             }
         }

@@ -1,7 +1,7 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Lavender\Workflow\Interfaces\ModelInterface;
+use Lavender\Workflow\Interfaces\WorkflowInterface;
 use Lavender\Workflow\Interfaces\SessionInterface;
 use Lavender\Workflow\Interfaces\RepositoryInterface;
 
@@ -84,10 +84,10 @@ class Repository implements RepositoryInterface
     /**
      * Get and set the current model
      *
-     * @param Model $model
+     * @param WorkflowInterface $model
      * @return void
      */
-    public function model(ModelInterface $model)
+    public function model(WorkflowInterface $model)
     {
         $this->model = $model;
     }

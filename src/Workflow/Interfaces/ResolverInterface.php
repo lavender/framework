@@ -3,7 +3,7 @@ namespace Lavender\Workflow\Interfaces;
 
 interface ResolverInterface
 {
-    public function register($workflow, ModelInterface $model);
+    public function register($workflow, WorkflowInterface $model);
 
     public function resolve($workflow);
 }

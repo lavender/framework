@@ -6,7 +6,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\View\Factory;
 use Lavender\View\Database\Theme;
 use Lavender\View\Facades\Layout;
-use Lavender\Workflow\Database\Workflow;
+use Lavender\Workflow\Interfaces\WorkflowInterface;
 
 class ViewServiceProvider extends ServiceProvider
 {
@@ -312,7 +312,7 @@ class ViewServiceProvider extends ServiceProvider
 
                     $html = $childConfig['layout']();
 
-                    if($html instanceof Workflow){
+                    if($html instanceof WorkflowInterface){
                         //todo remove (path hints)
                         #unset($viewData['Type']);
                         #$viewData['Workflow'] = get_class($html);
