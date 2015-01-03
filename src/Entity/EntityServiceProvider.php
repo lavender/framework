@@ -30,7 +30,7 @@ class EntityServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('lavender/entity', 'entity', realpath(__DIR__ . '/../'));
+        $this->package('lavender/entity', 'entity', realpath(__DIR__));
 
         $this->commands(['lavender.install', 'migrate.entity']);
     }
