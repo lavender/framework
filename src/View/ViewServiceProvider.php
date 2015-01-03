@@ -69,7 +69,7 @@ class ViewServiceProvider extends ServiceProvider
     private function registerCommands()
     {
         $this->app->bind('lavender.theme.creator', function (){
-            return new Console\CreateTheme;
+            return new Commands\CreateTheme;
         });
     }
 

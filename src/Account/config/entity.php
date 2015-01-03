@@ -7,7 +7,7 @@ use Lavender\Store\Facades\Scope;
 return [
 
     'admin' => [
-        'class' => 'Lavender\Account\Admin',
+        'class' => 'Lavender\Account\Database\Admin',
         'scope' => Scope::IS_GLOBAL,
         'timestamps' => true,
         'attributes' => [
@@ -40,7 +40,7 @@ return [
     ],
 
     'user' => [
-        'class' => 'Lavender\Account\User',
+        'class' => 'Lavender\Account\Database\User',
         'scope' => Scope::IS_STORE,
         'timestamps' => true,
         'attributes' => [
@@ -76,7 +76,7 @@ return [
     ],
 
     'reminder' => [
-        'class' => 'Lavender\Account\Reminder',
+        'class' => 'Lavender\Account\Database\Reminder',
         'scope' => Scope::IS_STORE,
         'timestamps' => true,
         'attributes' => [

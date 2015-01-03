@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\View\Console;
+namespace Lavender\View\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
