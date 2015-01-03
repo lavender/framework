@@ -138,7 +138,7 @@ class StoreServiceProvider extends ServiceProvider
     protected function registerCommands()
     {
         $this->app->bind('lavender.store', function (){
-            return new Console\CreateStore;
+            return new Commands\CreateStore;
         });
     }
 

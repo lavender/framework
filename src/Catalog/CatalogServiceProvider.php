@@ -55,7 +55,7 @@ class CatalogServiceProvider extends ServiceProvider
     private function registerCommands()
     {
         $this->app->bind('lavender.category.creator', function (){
-            return new CreateCategory;
+            return new Commands\CreateCategory;
         });
     }
 

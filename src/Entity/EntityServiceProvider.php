@@ -113,14 +113,14 @@ class EntityServiceProvider extends ServiceProvider
     {
         $this->app->bindShared('lavender.install', function ($app){
 
-            return new Console\InstallLavender();
+            return new Commands\InstallLavender();
         });
 
         $this->app->bindShared('migrate.entity', function ($app){
 
             $packagePath = $app['path.base'] . '/vendor';
 
-            return new Console\MigrateEntity($app['entity.creator'], $packagePath);
+            return new Commands\MigrateEntity($app['entity.creator'], $packagePath);
         });
     }
 

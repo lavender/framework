@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Entity\Console;
+namespace Lavender\Entity\Commands;
 
 use Illuminate\Console\Command;
 use Lavender\Entity\Database\Migrations\Creator;
