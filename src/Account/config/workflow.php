@@ -24,7 +24,7 @@ return [
 
                 'after' => [
 
-                    'create-user' => ['class' => 'Lavender\Account\Listener\CreateUser']
+                    'create-user' => ['class' => 'Lavender\Account\Handlers\CreateUser']
 
                 ],
 
@@ -68,7 +68,7 @@ return [
 
                 'after' => [
 
-                    'create-user' => ['class' => 'Lavender\Account\Listener\DoLogin']
+                    'create-user' => ['class' => 'Lavender\Account\Handlers\DoLogin']
 
                 ],
 
@@ -108,7 +108,7 @@ return [
 
                 'after' => [
 
-                    'create-user' => ['class' => 'Lavender\Account\Listener\ForgotPassword']
+                    'create-user' => ['class' => 'Lavender\Account\Handlers\ForgotPassword']
 
                 ],
 
@@ -140,7 +140,7 @@ return [
 
                 'after' => [
 
-                    'reset' => ['class' => 'Lavender\Account\Listener\ResetPassword']
+                    'reset' => ['class' => 'Lavender\Account\Handlers\ResetPassword']
 
                 ],
 

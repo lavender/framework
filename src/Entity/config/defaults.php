@@ -1,5 +1,7 @@
 <?php
 
+use Lavender\Entity\Facades\Attribute;
+
 return [
 
     'entity'            => [
@@ -11,7 +13,7 @@ return [
 
     'attribute'         => [
         'label'    => null,
-        'type'     => 'varchar',
+        'type'     => Attribute::VARCHAR,
         'parent'   => false,
         'default'  => null,
         'nullable' => true,

@@ -1,92 +1,96 @@
 <?php
 
+use Lavender\Entity\Facades\Attribute;
+use Lavender\Entity\Facades\Relationship;
+use Lavender\Store\Facades\Scope;
+
 return [
 
     'admin' => [
         'class' => 'Lavender\Account\Admin',
-        'scope' => Lavender::SCOPE_GLOBAL,
+        'scope' => Scope::IS_GLOBAL,
         'timestamps' => true,
         'attributes' => [
             'email' => [
                 'label' => 'Email',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
                 'unique' => true,
             ],
             'username' => [
                 'label' => 'Username',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
                 'unique' => true,
             ],
             'password' => [
                 'label' => 'Password',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
             ],
             'remember_token' => [
                 'label' => 'Remember Token',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
                 'nullable' => true,
             ],
         ],
         'relationships' => [
             'workflows' => [
                 'entity' => 'workflow.session',
-                'type' => Lavender::HAS_MANY,
+                'type' => Relationship::HAS_MANY,
             ],
         ],
     ],
 
     'user' => [
         'class' => 'Lavender\Account\User',
-        'scope' => Lavender::SCOPE_STORE,
+        'scope' => Scope::IS_STORE,
         'timestamps' => true,
         'attributes' => [
             'email' => [
                 'label' => 'Email',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
             ],
             'password' => [
                 'label' => 'Password',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
             ],
             'confirmation_code' => [
                 'label' => 'Confirmation Code',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
             ],
             'remember_token' => [
                 'label' => 'Remember Token',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
                 'nullable' => true,
             ],
             'confirmed' => [
                 'label' => 'confirmed',
-                'type' => 'bool',
+                'type' => Attribute::BOOL,
                 'default' => false,
             ],
         ],
         'relationships' => [
             'workflows' => [
                 'entity' => 'workflow.session',
-                'type' => Lavender::HAS_MANY,
+                'type' => Relationship::HAS_MANY,
             ],
         ],
     ],
 
     'reminder' => [
         'class' => 'Lavender\Account\Reminder',
-        'scope' => Lavender::SCOPE_STORE,
+        'scope' => Scope::IS_STORE,
         'timestamps' => true,
         'attributes' => [
             'email' => [
                 'label' => 'Email',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
             ],
             'token' => [
                 'label' => 'Token',
-                'type' => 'varchar',
+                'type' => Attribute::VARCHAR,
             ],
             'created_at' => [
                 'label' => 'Created At',
-                'type' => 'timestamp',
+                'type' => Attribute::TIMESTAMP,
             ],
         ],
     ],

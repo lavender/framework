@@ -60,15 +60,15 @@ class ConfigServiceProvider extends ServiceProvider
     {
         $this->app->bindShared('lavender.config', function ($app){
 
-            return new Merger;
+            return new Services\Merger;
         });
         $this->app->bindShared('lavender.theme.config', function ($app){
 
-            return new Merger;
+            return new Services\Merger;
         });
         $this->app->bindShared('lavender.config.defaults', function ($app){
 
-            return new Merger;
+            return new Services\Merger;
         });
     }
 

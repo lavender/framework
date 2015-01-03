@@ -56,7 +56,7 @@ class AuthServiceProvider extends ServiceProvider
 
             $app['auth.loaded'] = true;
 
-            return new Auth\Resolver($app);
+            return new Services\Auth\Resolver($app);
         });
     }
 
@@ -67,7 +67,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->app->bindShared('account.service', function ($app){
 
-            return new Service\Manager($app);
+            return new Services\Manager($app);
         });
     }
 
@@ -77,7 +77,7 @@ class AuthServiceProvider extends ServiceProvider
     private function registerPasswordService()
     {
         $this->app->bindShared('account.password', function ($app){
-            return new Service\Password($app);
+            return new Services\Password($app);
         });
     }
 
@@ -88,7 +88,7 @@ class AuthServiceProvider extends ServiceProvider
     private function registerThrottleService()
     {
         $this->app->bindShared('account.throttle', function ($app){
-            return new Service\Throttle;
+            return new Services\Throttle;
         });
     }
 
@@ -98,7 +98,7 @@ class AuthServiceProvider extends ServiceProvider
     private function registerValidatorService()
     {
         $this->app->bindShared('account.validator', function ($app){
-            return new Service\Validator;
+            return new Services\Validator;
         });
     }
 }

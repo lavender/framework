@@ -35,6 +35,7 @@ class InstallLavender extends Command
             $callbacks = $this->laravel['lavender.installer']->updates();
 
             foreach($callbacks as $callback) $callback($this);
+
         } catch(\Exception $e){
 
             print_r($e->getMessage());

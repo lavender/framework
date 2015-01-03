@@ -3,9 +3,10 @@ namespace Lavender\Entity\Console;
 
 use Illuminate\Console\Command;
 use Lavender\Entity\Database\Migrations\Creator;
+use Lavender\Entity\Facades\Attribute;
+use Lavender\Entity\Facades\Relationship;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Illuminate\Database\Schema\Blueprint;
 
 class MigrateEntity extends Command
 {
@@ -191,7 +192,7 @@ class MigrateEntity extends Command
 
         foreach($relationships as $relationship){
 
-            if($relationship['type'] == \Lavender::HAS_PIVOT &&
+            if($relationship['type'] == Relationship::HAS_PIVOT &&
                 !isset($this->pivots[$relationship['table']])
             ){
 
@@ -203,14 +204,14 @@ class MigrateEntity extends Command
                         'parent' => $entity,
                     ],
                 ]);
-            } elseif($relationship['type'] == \Lavender::HAS_ONE){
+            } elseif($relationship['type'] == Relationship::HAS_ONE){
 
                 $config['attributes'] += $this->prepareAttributes([
                     $this->underscore($relationship['entity']) . '_id' => [
                         'parent' => $relationship['entity'],
                     ]
                 ]);
-            } elseif($relationship['type'] == \Lavender::BELONGS_TO){
+            } elseif($relationship['type'] == Relationship::BELONGS_TO){
 
                 $config['attributes'] += $this->prepareAttributes([
                     $this->underscore($relationship['entity']) . '_id' => [
@@ -229,7 +230,7 @@ class MigrateEntity extends Command
 
             $parent = isset($attribute['parent']) ? $attribute['parent'] : null;
 
-            $type = $parent ? 'index' : $attribute['type'];
+            $type = $parent ? Attribute::INDEX : $attribute['type'];
 
             $default = $parent ? null : $attribute['default'];
 
@@ -284,21 +285,22 @@ class MigrateEntity extends Command
         if(!\Schema::hasColumn($table, $column)){
 
             switch($type){
-                case 'index':
+                case Attribute::INDEX:
                     $result = '$table->integer("' . $column . '")->unsigned()->nullable();$table->index("' . $column . '");';
                     break;
-                case 'bool':
+                case Attribute::BOOL:
+                case Attribute::INTEGER:
                 case 'integer':
-                case 'int':
                     $result = '$table->integer("' . $column . '")->default(' . (integer)$default . ');';
                     break;
-                case 'decimal':
+                case Attribute::DECIMAL:
                     $result = '$table->decimal("' . $column . '", 12, 4)->default("' . $default . '");';
                     break;
-                case 'date':
+                case Attribute::DATE:
+                case 'datetime':
                     $result = '$table->dateTime("' . $column . '")->default("' . $default . '");';
                     break;
-                case 'text':
+                case Attribute::TEXT:
                     $result = '$table->longText("' . $column . '");';
                     break;
                 default:
