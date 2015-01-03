@@ -196,24 +196,24 @@ class MigrateEntity extends Command
             ){
 
                 $this->pivots[$relationship['table']] = $this->prepareAttributes([
-                    underscore($relationship['entity']) . '_id' => [
+                    $this->underscore($relationship['entity']) . '_id' => [
                         'parent' => $relationship['entity'],
                     ],
-                    underscore($entity) . '_id' => [
+                    $this->underscore($entity) . '_id' => [
                         'parent' => $entity,
                     ],
                 ]);
             } elseif($relationship['type'] == \Lavender::HAS_ONE){
 
                 $config['attributes'] += $this->prepareAttributes([
-                    underscore($relationship['entity']) . '_id' => [
+                    $this->underscore($relationship['entity']) . '_id' => [
                         'parent' => $relationship['entity'],
                     ]
                 ]);
             } elseif($relationship['type'] == \Lavender::BELONGS_TO){
 
                 $config['attributes'] += $this->prepareAttributes([
-                    underscore($relationship['entity']) . '_id' => [
+                    $this->underscore($relationship['entity']) . '_id' => [
                         'parent' => $relationship['entity'],
                     ]
                 ]);
@@ -385,5 +385,10 @@ class MigrateEntity extends Command
         foreach($attributes as &$attribute) merge_defaults($attribute, $type);
 
         return $attributes;
+    }
+
+    private function underscore($value)
+    {
+        return strtolower(str_replace('.', '_', $value));
     }
 }
