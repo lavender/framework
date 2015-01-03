@@ -30,7 +30,7 @@ class AccountServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('lavender/account', 'account', realpath(__DIR__ . '/../'));
+        $this->package('lavender/account', 'account', realpath(__DIR__));
     }
 
     /**
