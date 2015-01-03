@@ -5,6 +5,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\QueryException;
 use Illuminate\View\Factory;
 use Lavender\View\Database\Theme;
+use Lavender\View\Facades\Layout;
 use Lavender\Workflow\Database\Workflow;
 
 class ViewServiceProvider extends ServiceProvider
@@ -346,7 +347,7 @@ class ViewServiceProvider extends ServiceProvider
 
                     $factory->inject(
                         $sectionName,
-                        $childConfig['mode'] == \Lavender::LAYOUT_REPLACE ?
+                        $childConfig['mode'] == Layout::REPLACE ?
                             $html : '@parent' . PHP_EOL . $html
                     );
                 }

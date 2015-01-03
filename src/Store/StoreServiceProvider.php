@@ -4,6 +4,7 @@ namespace Lavender\Store;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\QueryException;
 use Lavender\Entity\Database\QueryBuilder;
+use Lavender\Store\Facades\Scope;
 
 class StoreServiceProvider extends ServiceProvider
 {
@@ -65,10 +66,10 @@ class StoreServiceProvider extends ServiceProvider
 
             $config = $query->config();
 
-            if($config['scope'] == \Lavender::SCOPE_STORE){
+            if($config['scope'] == Scope::IS_STORE){
 
                 $query->where('store_id', '=', app('current.store')->id);
-            } elseif($config['scope'] == \Lavender::SCOPE_DEPARTMENT){
+            } elseif($config['scope'] == Scope::IS_DEPARTMENT){
 
                 $query->where('store_id', '=', app('current.store')->id);
 
@@ -80,10 +81,10 @@ class StoreServiceProvider extends ServiceProvider
 
             $config = $query->config();
 
-            if($config['scope'] == \Lavender::SCOPE_STORE){
+            if($config['scope'] == Scope::IS_STORE){
 
                 $values['store_id'] = app('current.store')->id;
-            } elseif($config['scope'] == \Lavender::SCOPE_DEPARTMENT){
+            } elseif($config['scope'] == Scope::IS_DEPARTMENT){
 
                 $values['store_id'] = app('current.store')->id;
 
@@ -93,14 +94,14 @@ class StoreServiceProvider extends ServiceProvider
 
         \Event::listen('entity.creator.prepare', function (&$config){
 
-            if($config['scope'] == \Lavender::SCOPE_STORE){
+            if($config['scope'] == Scope::IS_STORE){
 
                 $scope = ['store_id' => ['parent' => 'store']];
 
                 merge_defaults($scope, 'attribute');
 
                 $config['attributes'] += $scope;
-            } elseif($config['scope'] == \Lavender::SCOPE_DEPARTMENT){
+            } elseif($config['scope'] == Scope::IS_DEPARTMENT){
 
                 $scope = [
                     'store_id' => ['parent' => 'store'],
