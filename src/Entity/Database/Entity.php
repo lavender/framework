@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Lavender\Entity\Facades\Relationship;
 
 class Entity extends Eloquent
 {
@@ -42,7 +43,7 @@ class Entity extends Eloquent
      * @param array $columns
      * @return mixed
      */
-    public static function findByAttribute($attribute, $value, $columns = array('*'))
+    public static function findByAttribute($attribute, $value, $columns = ['*'])
     {
         $model = new static;
 
@@ -98,7 +99,7 @@ class Entity extends Eloquent
             $foreignKey = "{$onEntity}_id";
 
             switch($relationship['type']){
-                case \Lavender::HAS_PIVOT:
+                case Relationship::HAS_PIVOT:
 
                     $attribute = $this->belongsToMany(
                         $model,
@@ -110,19 +111,19 @@ class Entity extends Eloquent
 
                     break;
 
-                case \Lavender::HAS_MANY:
+                case Relationship::HAS_MANY:
 
                     $attribute = $this->hasMany($model, $localKey);
 
                     break;
 
-                case \Lavender::HAS_ONE:
+                case Relationship::HAS_ONE:
 
                     $attribute = $this->hasOne($model, $model->getKeyName());
 
                     break;
 
-                case \Lavender::BELONGS_TO:
+                case Relationship::BELONGS_TO:
 
                     $attribute = $this->belongsTo($model, $foreignKey, $model->getKeyName(), $key);
 
@@ -233,7 +234,7 @@ class Entity extends Eloquent
 
                 switch($relationship['type']){
 
-                    case \Lavender::HAS_PIVOT:
+                    case Relationship::HAS_PIVOT:
 
                         if($value instanceof Collection) $value = $value->all();
 
@@ -241,19 +242,19 @@ class Entity extends Eloquent
 
                         break;
 
-                    case \Lavender::HAS_MANY:
+                    case Relationship::HAS_MANY:
 
                         $this->$key()->saveMany((array)$value);
 
                         break;
 
-                    case \Lavender::BELONGS_TO:
+                    case Relationship::BELONGS_TO:
 
                         $this->$key()->associate($value);
 
                         break;
 
-                    case \Lavender::HAS_ONE:
+                    case Relationship::HAS_ONE:
 
                         $this->$key()->save($value);
 
