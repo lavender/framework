@@ -53,9 +53,22 @@ class ThemeServiceProvider extends ServiceProvider
 
         $this->registerInstaller();
 
+        $this->registerLayoutInjector();
+
         $this->app->booted(function (){
 
             $this->bootCurrentTheme();
+        });
+    }
+
+
+    /**
+     * Register layout injection service
+     */
+    private function registerLayoutInjector()
+    {
+        $this->app->bindShared('layout.injector', function (){
+            return new Services\LayoutInjector;
         });
     }
 
@@ -211,7 +224,7 @@ class ThemeServiceProvider extends ServiceProvider
 
             $this->app->view->composer($viewName, function ($view) use ($sections){
 
-                $this->inject($view->getFactory(), $sections);
+                $this->app['layout.injector']->inject($sections);
             });
         }
     }
@@ -253,68 +266,7 @@ class ThemeServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Inject views into layouts
-     *
-     * @param Factory $factory
-     * @param array $sections
-     */
-    private function inject(Factory $factory, array $sections)
-    {
-        foreach($sections as $sectionName => $children){
 
-            // Sort from highest to lowest 'position' in order to render
-            // the first child first by declaring it last.
-            sort_children($children);
-
-            $children = array_reverse($children);
-
-            foreach($children as $childName => $childConfig){
-
-                $html = null;
-
-                if($childConfig['script']){
-
-                    $html = \HTML::script($childConfig['script']);
-
-                } elseif($childConfig['meta']){
-
-                    $html = \HTML::meta($childConfig['meta']);
-
-                } elseif($childConfig['style']){
-
-                    $html = \HTML::style($childConfig['style']);
-
-                } elseif($childConfig['workflow']){
-
-                    $html = app('workflow.resolver')->resolve($childConfig['workflow']);
-
-                } elseif($factory->exists($childConfig['layout'])){
-
-                    $view = $factory->make($childConfig['layout']);
-
-                    $html = $view->render();
-
-                } elseif($childConfig['config']){
-
-                    $html = $this->app->config[$childConfig['config']];
-
-                } else{
-
-                    continue;
-                }
-
-                if($html){
-
-                    $factory->inject(
-                        $sectionName,
-                        $childConfig['mode'] == Layout::REPLACE ?
-                            $html : '@parent' . PHP_EOL . $html
-                    );
-                }
-            }
-        }
-    }
 
     /**
      * Register Route

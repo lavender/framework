@@ -8,13 +8,13 @@ return [
 
             'left' => [
 
-                'register' => ['layout' => workflow('register')],
+                'register' => ['workflow' => 'register'],
 
             ],
 
             'right' => [
 
-                'login' => ['layout' => workflow('login')],
+                'login' => ['workflow' => 'login'],
 
             ]
 
@@ -24,7 +24,7 @@ return [
 
             'content' => [
 
-                'forgot_password' => ['layout' => workflow('forgot_password')]
+                'forgot_password' => ['workflow' => 'forgot_password']
 
             ]
 
@@ -34,7 +34,7 @@ return [
 
             'content' => [
 
-                'reset_password' => ['layout' => workflow('reset_password')]
+                'reset_password' => ['workflow' => 'reset_password']
 
             ]
 
