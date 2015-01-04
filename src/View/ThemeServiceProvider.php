@@ -272,12 +272,7 @@ class ThemeServiceProvider extends ServiceProvider
             foreach($children as $childName => $childConfig){
 
                 $html = null;
-                // todo remove (path hints)
-                #$viewData = [
-                #    'Layout' => $childName,
-                #    'Section' => $sectionName
-                #];
-                //
+
                 if($childConfig['script']){
 
                     $html = \HTML::script($childConfig['script']);
@@ -290,45 +285,26 @@ class ThemeServiceProvider extends ServiceProvider
 
                     $html = \HTML::style($childConfig['style']);
 
-                } elseif($childConfig['layout'] instanceof \Closure){
-                    // todo remove (path hints)
-                    #$viewData['Type'] = "Closure";
-                    //
+                } elseif($childConfig['workflow']){
 
-                    $html = $childConfig['layout']();
+                    $html = app('workflow.resolver')->resolve($childConfig['workflow']);
 
-                    if($html instanceof WorkflowInterface){
-                        //todo remove (path hints)
-                        #unset($viewData['Type']);
-                        #$viewData['Workflow'] = get_class($html);
-                        //
-
-                        $html = $html->render();
-                    }
                 } elseif($factory->exists($childConfig['layout'])){
 
                     $view = $factory->make($childConfig['layout']);
-                    // todo remove (path hints)
-                    #$viewData['Template'] = str_replace(base_path(), null, $view->getPath());
-                    //
 
                     $html = $view->render();
+
                 } elseif($childConfig['config']){
 
                     $html = $this->app->config[$childConfig['config']];
+
                 } else{
 
                     continue;
                 }
 
                 if($html){
-
-                    // todo remove (path hints)
-                    #if(stristr($sectionName, 'head.') === false){
-                    #$viewData = implode("\n",array_map(function($k,$v){return $k.":\n\t".$v;}, array_keys($viewData), $viewData));
-                    #$html = "<div class='template-hint' style='border:1px solid red;' title='{$viewData}'>{$html}</div>";
-                    #}
-                    //
 
                     $factory->inject(
                         $sectionName,

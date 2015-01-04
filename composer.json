@@ -14,8 +14,7 @@
   },
   "autoload": {
     "files": [
-      "src/Config/helpers/functions.php",
-      "src/Workflow/helpers/functions.php"
+      "src/Config/helpers/functions.php"
     ],
     "psr-4": {
       "Lavender\\": "src"

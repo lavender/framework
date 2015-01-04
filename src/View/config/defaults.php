@@ -9,6 +9,7 @@ return [
         'layout' => null,
         'script' => null,
         'style' => null,
+        'workflow' => null,
         'meta' => null,
         'position' => 0,
         'mode'  => Layout::APPEND
