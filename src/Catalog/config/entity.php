@@ -7,7 +7,7 @@ use Lavender\Store\Facades\Scope;
 return [
 
     'category' => [
-        'class' => 'Lavender\Catalog\Category',
+        'class' => 'Lavender\Catalog\Database\Category',
         'scope' => Scope::IS_DEPARTMENT,
         'attributes' => [
             'name' => [
@@ -47,7 +47,7 @@ return [
 
 
     'product' => [
-        'class' => 'Lavender\Catalog\Product',
+        'class' => 'Lavender\Catalog\Database\Product',
         'scope' => Scope::IS_STORE,
         'backend' => 'Lavender\Catalog\Backend\Product',
         'attributes' => [

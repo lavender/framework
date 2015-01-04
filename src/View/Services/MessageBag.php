@@ -65,7 +65,7 @@ class MessageBag
     {
         $params = $params ? $params[0] : null;
 
-        @list($method, $type) = uncamel($method);
+        @list($method, $type) = $this->uncamel($method);
 
         if(in_array($method, ['get', 'add'])){
 
@@ -79,5 +79,12 @@ class MessageBag
 
             }
         }
+    }
+
+    private function uncamel($str)
+    {
+        return explode(',', preg_replace_callback('/([A-Z])/', function($c){
+            return ','.strtolower($c[0]);
+        }, $str));
     }
 }

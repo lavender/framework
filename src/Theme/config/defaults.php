@@ -1,10 +1,15 @@
 <?php
 
+use Lavender\View\Facades\Layout;
+
 return [
 
     'layout' => [
         'config' => null,
         'layout' => null,
+        'script' => null,
+        'style' => null,
+        'meta' => null,
         'position' => 0,
         'mode'  => Layout::APPEND
     ],
