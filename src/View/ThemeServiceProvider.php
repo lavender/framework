@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Theme;
+namespace Lavender\View;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\QueryException;
