@@ -57,13 +57,14 @@ class LayoutInjector
 
         } elseif($config['workflow']){
 
-            return app('workflow.resolver')->resolve($config['workflow']);
+            return app('workflow.resolver')
+                ->resolve($config['workflow'])
+                ->render();
 
         } elseif(\View::exists($config['layout'])){
 
-            $view = \View::make($config['layout']);
-
-            return $view->render();
+            return \View::make($config['layout'])
+                ->render();
 
         } elseif($config['config']){
 

@@ -53,22 +53,9 @@ class ThemeServiceProvider extends ServiceProvider
 
         $this->registerInstaller();
 
-        $this->registerLayoutInjector();
-
         $this->app->booted(function (){
 
             $this->bootCurrentTheme();
-        });
-    }
-
-
-    /**
-     * Register layout injection service
-     */
-    private function registerLayoutInjector()
-    {
-        $this->app->bindShared('layout.injector', function (){
-            return new Services\LayoutInjector;
         });
     }
 
@@ -145,11 +132,11 @@ class ThemeServiceProvider extends ServiceProvider
             // Register the theme object with the theme fallbacks
             $this->app->singleton('current.theme', function () use ($theme){ return $theme; });
 
-            // Fire an event to let other modules know the theme is registered (eg. merge theme configs)
-            \Event::fire('lavender.theme', [$theme]);
-
             // Override Laravel's view.finder to support theme fallbacks.
             $this->registerViewFinder();
+
+            // Fire an event to let other modules know the theme is registered (eg. merge theme configs & views)
+            \Event::fire('lavender.theme', [$theme]);
 
             // Now let's register our view composers
             $this->registerComposers();

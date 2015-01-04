@@ -20,7 +20,7 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['message.service', 'asset.publisher', 'html', 'url'];
+        return ['message.service', 'asset.publisher', 'url', 'layout.injector'];
     }
 
     /**
@@ -31,8 +31,6 @@ class ViewServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->package('lavender/view', 'view');
-
-        $this->commands(['lavender.theme.creator']);
     }
 
     /**
@@ -48,19 +46,30 @@ class ViewServiceProvider extends ServiceProvider
 
         $this->registerUrlGenerator();
 
-        $this->registerHtmlBuilder();
+        $this->registerLayoutInjector();
     }
 
 
-    /**
-     * Register the HTML builder instance.
-     *
-     * @return void
-     */
-    protected function registerHtmlBuilder()
+    private function registerMessageBag()
     {
-        $this->app->bindShared('html', function ($app){
-            return new Services\HtmlBuilder($app['url']);
+        $this->app->bindShared('message.service', function ($app){
+
+            return new Services\MessageBag;
+
+        });
+    }
+
+    private function registerAssetPublisher()
+    {
+        $this->app->bindShared('asset.publisher', function ($app){
+
+            // Overriding the default publisher to allow publishing
+            // directly into public directory.
+            $publisher = new Services\AssetPublisher($app['files'], $app['path.public']);
+
+            $publisher->setPackagePath($app['path.base'] . '/vendor');
+
+            return $publisher;
         });
     }
 
@@ -85,26 +94,13 @@ class ViewServiceProvider extends ServiceProvider
     }
 
 
-    private function registerMessageBag()
+    /**
+     * Register layout injection service
+     */
+    private function registerLayoutInjector()
     {
-        $this->app->bindShared('message.service', function ($app){
-
-            return new Services\MessageBag;
-
-        });
-    }
-
-    private function registerAssetPublisher()
-    {
-        $this->app->bindShared('asset.publisher', function ($app){
-
-            // Overriding the default publisher to allow publishing
-            // directly into public directory.
-            $publisher = new Services\AssetPublisher($app['files'], $app['path.public']);
-
-            $publisher->setPackagePath($app['path.base'] . '/vendor');
-
-            return $publisher;
+        $this->app->bindShared('layout.injector', function (){
+            return new Services\LayoutInjector;
         });
     }
 
