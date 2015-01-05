@@ -51,7 +51,7 @@ class StoreServiceProvider extends ServiceProvider
 
         $this->registerInstaller();
 
-        # $this->registerListeners();
+        $this->registerListeners();
 
         $this->app->booted(function (){
 
@@ -61,8 +61,9 @@ class StoreServiceProvider extends ServiceProvider
 
     protected function registerListeners()
     {
+        \Event::listen('lavender.theme', [$this, 'mergeConfig']);
 
-        \Event::listen('entity.query.select', function (QueryBuilder $query){
+       /* \Event::listen('entity.query.select', function (QueryBuilder $query){
 
             $config = $query->config();
 
@@ -112,7 +113,7 @@ class StoreServiceProvider extends ServiceProvider
 
                 $config['attributes'] += $scope;
             }
-        });
+        });*/
     }
 
     protected function registerInstaller()
@@ -159,6 +160,17 @@ class StoreServiceProvider extends ServiceProvider
 
             // something went wrong
             if(!\App::runningInConsole()) throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function mergeConfig()
+    {
+        $config = $this->app['current.store']->config->all();
+
+        foreach($config as $item){
+
+            $this->app['config']->set('store.'.$item->key, $item->value);
+
         }
     }
 }
