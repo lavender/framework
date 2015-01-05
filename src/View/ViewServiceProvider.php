@@ -20,7 +20,7 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['message.service', 'asset.publisher', 'url', 'layout.injector'];
+        return ['message.service', 'menu.builder', 'asset.publisher', 'url', 'layout.injector'];
     }
 
     /**
@@ -42,6 +42,8 @@ class ViewServiceProvider extends ServiceProvider
     {
         $this->registerMessageBag();
 
+        $this->registerMenuBuilder();
+
         $this->registerAssetPublisher();
 
         $this->registerUrlGenerator();
@@ -55,6 +57,16 @@ class ViewServiceProvider extends ServiceProvider
         $this->app->bindShared('message.service', function ($app){
 
             return new Services\MessageBag;
+
+        });
+    }
+
+
+    private function registerMenuBuilder()
+    {
+        $this->app->bindShared('menu.builder', function ($app){
+
+            return new Services\MenuBuilder;
 
         });
     }

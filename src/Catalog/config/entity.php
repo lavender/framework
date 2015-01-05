@@ -49,7 +49,8 @@ return [
     'product' => [
         'class' => 'Lavender\Catalog\Database\Product',
         'scope' => Scope::IS_STORE,
-        'backend' => 'Lavender\Catalog\Backend\Product',
+        'backend.table' => 'Lavender\Backend\Entity\Table',
+        'backend.form' => 'Lavender\Backend\Entity\Form',
         'attributes' => [
             'sku' => [
                 'label' => 'Sku',
