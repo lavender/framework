@@ -86,7 +86,7 @@ class Password
             'created_at' => new \DateTime
         );
 
-        $reminder = app('reminder')->fill($values);
+        $reminder = entity('reminder')->fill($values);
 
         $reminder->save();
 
@@ -105,7 +105,7 @@ class Password
      */
     public function getEmailByToken($token)
     {
-        $reminder = app('reminder')
+        $reminder = entity('reminder')
             ->where('token', '=', $token)
             ->where('created_at', '>=', $this->getOldestValidDate())
             ->first();
@@ -122,7 +122,7 @@ class Password
      */
     public function destroyToken($token)
     {
-        return app('reminder')
+        return entity('reminder')
             ->where('token', '=', $token)
             ->delete();
     }

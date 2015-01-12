@@ -17,10 +17,12 @@ return [
                 'label' => 'Code',
                 'type' => Attribute::VARCHAR,
                 'unique' => true,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
             ],
             'name' => [
                 'label' => 'Name',
                 'type' => Attribute::VARCHAR,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
             ],
         ],
         'relationships' => [

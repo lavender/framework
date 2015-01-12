@@ -6,7 +6,6 @@ return [
 
     'entity'            => [
         'class'         => null,
-        'backend'       => null,
         'attributes'    => [],
         'relationships' => [],
     ],
@@ -18,7 +17,8 @@ return [
         'default'  => null,
         'nullable' => true,
         'unique'   => false,
-        'before_save'   => false,
+        'before_save' => null,
+        'renderer' => null,
 
         // todo support this stuff
         'length'   => null,

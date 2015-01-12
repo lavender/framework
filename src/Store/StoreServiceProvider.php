@@ -4,6 +4,7 @@ namespace Lavender\Store;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\QueryException;
 use Lavender\Entity\Database\QueryBuilder;
+use Lavender\Store\Database\Store;
 use Lavender\Store\Facades\Scope;
 
 class StoreServiceProvider extends ServiceProvider
@@ -23,7 +24,7 @@ class StoreServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['store', 'current.store'];
+        return ['store'];
     }
 
     /**
@@ -45,6 +46,8 @@ class StoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->registerStore();
+
         $this->registerCommands();
 
         $this->registerConfig();
@@ -56,12 +59,23 @@ class StoreServiceProvider extends ServiceProvider
         $this->app->booted(function (){
 
             $this->bootCurrentStore();
+
+            $this->app->theme->booted(function (){
+
+                $this->mergeConfig();
+
+            });
         });
     }
 
+    private function registerStore()
+    {
+        $this->app->bindShared('store', function (){
+            return new Store();
+        });
+    }
     protected function registerListeners()
     {
-        \Event::listen('lavender.theme', [$this, 'mergeConfig']);
 
        /* \Event::listen('entity.query.select', function (QueryBuilder $query){
 
@@ -118,10 +132,10 @@ class StoreServiceProvider extends ServiceProvider
 
     protected function registerInstaller()
     {
-        $this->app['lavender.installer']->update('Install default store', function ($console){
+        $this->app->installer->update('Install default store', function ($console){
 
             // If a default store doesnt exist, create it now
-            if(!$this->app->bound('current.store') || !app('current.store')){
+            if(!$this->app->store->id){
 
                 $console->call('lavender:store', ['--default' => true]);
 
@@ -133,8 +147,6 @@ class StoreServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->app['lavender.config']->merge(['store']);
-
-        $this->app['lavender.theme.config']->merge(['store']);
     }
 
     protected function registerCommands()
@@ -148,10 +160,13 @@ class StoreServiceProvider extends ServiceProvider
     {
         try{
             // Find the default store
-            $store = app('store')->where('default', '=', true)->first();
+            $store = $this->app->store->where('default', '=', true)->first();
 
             // Register the current store object
-            $this->app->singleton('current.store', function () use ($store){ return $store; });
+            $this->app->store->booting($store);
+
+            $this->app->store = $store;
+
         } catch(QueryException $e){
 
             // missing core tables
@@ -165,7 +180,7 @@ class StoreServiceProvider extends ServiceProvider
 
     public function mergeConfig()
     {
-        $config = $this->app['current.store']->config->all();
+        $config = $this->app->store->config->all();
 
         foreach($config as $item){
 

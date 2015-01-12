@@ -1,6 +1,12 @@
 <?php
-namespace Lavender\Workflow\Services;
+namespace Lavender\Workflow\OldServices;
 
+/**
+ * Class Transport is used to transport the workflow form data
+ * to 'before' callbacks prior to being rendered.
+ *
+ * @package Lavender\Workflow\Services
+ */
 class Transport
 {
 

@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Entity\Database\Migrations;
+namespace Lavender\Core\Services;
 
 class Installer
 {

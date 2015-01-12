@@ -1,56 +1,71 @@
-<?php namespace Lavender\Workflow\Services;
+<?php
+namespace Lavender\Workflow\Services;
 
-use Lavender\Workflow\Interfaces\WorkflowInterface;
-use Lavender\Workflow\Interfaces\ResolverInterface;
 
-class Resolver implements ResolverInterface
+use Illuminate\Support\Facades\Redirect;
+
+class Resolver
 {
 
     /**
-     * The array of workflow resolvers.
+     * The sorted workflow states.
      *
      * @var array
      */
-    protected $resolvers = array();
+    protected $sorted;
 
     /**
-     * The resolved workflow instances.
-     *
+     * All workflow config
      * @var array
      */
-    protected $resolved = array();
+    protected $config;
 
 
-    /**
-     * Register a new workflow resolver.
-     *
-     * @param  string $workflow
-     * @param  WorkflowInterface $model
-     * @return void
-     */
-    public function register($workflow, WorkflowInterface $model)
+    public function __construct($config)
     {
-        $this->resolvers[$workflow] = $model;
+        $this->config = $config;
     }
 
-
-    /**
-     * Resolve a workflow instance by name.
-     *
-     * @param  string $workflow
-     * @return ModelInterface
-     * @throws \InvalidArgumentException
-     */
-    public function resolve($workflow)
+    public function states($workflow)
     {
-        if(isset($this->resolved[$workflow])){
-            return $this->resolved[$workflow];
-        }
+        if(!isset($this->sorted[$workflow])){
 
-        if(isset($this->resolvers[$workflow])){
-            return $this->resolved[$workflow] = $this->resolvers[$workflow];
-        }
+            $states = $this->config[$workflow];
 
-        throw new \InvalidArgumentException("Workflow $workflow not found.");
+            sort_children($states);
+
+            $this->sorted[$workflow] = $states;
+
+        }
+        return $this->sorted[$workflow];
     }
+
+    public function redirect($workflow, $state)
+    {
+        $redirect = $this->config[$workflow][$state]['redirect'];
+
+        return $redirect ? Redirect::to($redirect) : Redirect::back();
+    }
+
+    public function hasState($workflow, $state)
+    {
+        return isset($this->config[$workflow][$state]);
+    }
+
+    public function defaultState($workflow)
+    {
+        return array_keys($this->states($workflow))[0];
+    }
+
+    public function nextState($workflow, $state)
+    {
+        $states = array_keys($this->states($workflow));
+
+        $curr = array_search($state, $states);
+
+        if(isset($states[$curr + 1])) return $states[$curr + 1];
+
+        return $state;
+    }
+
 }

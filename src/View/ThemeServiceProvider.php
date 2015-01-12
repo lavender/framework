@@ -25,7 +25,7 @@ class ThemeServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['theme', 'current.theme', 'lavender.theme.creator'];
+        return ['theme', 'theme.creator'];
     }
 
     /**
@@ -35,9 +35,9 @@ class ThemeServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('lavender/theme', 'theme', realpath(__DIR__));
+        $this->package('lavender/view', 'theme', realpath(__DIR__));
 
-        $this->commands(['lavender.theme.creator']);
+        $this->commands(['theme.creator']);
     }
 
     /**
@@ -47,6 +47,8 @@ class ThemeServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->registerTheme();
+
         $this->registerCommands();
 
         $this->registerConfig();
@@ -56,16 +58,23 @@ class ThemeServiceProvider extends ServiceProvider
         $this->app->booted(function (){
 
             $this->bootCurrentTheme();
+
         });
     }
 
+    private function registerTheme()
+    {
+        $this->app->bindShared('theme', function($app){
+            return new Theme();
+        });
+    }
 
     /**
      * Register artisan commands
      */
     private function registerCommands()
     {
-        $this->app->bind('lavender.theme.creator', function (){
+        $this->app->bind('theme.creator', function (){
             return new Commands\CreateTheme;
         });
     }
@@ -99,12 +108,12 @@ class ThemeServiceProvider extends ServiceProvider
      */
     private function registerInstaller()
     {
-        $this->app['lavender.installer']->update('Install default theme', function ($console){
+        $this->app->installer->update('Install default theme', function ($console){
 
             // If a default theme doesnt exist, create it now
-            if(!$this->app->bound('current.theme')){
+            if(!$this->app->theme->id){
 
-                $console->call('lavender:theme', ['--store' => app('current.store')->id]);
+                $console->call('lavender:theme', ['--store' => $this->app->store->id]);
 
                 $this->bootCurrentTheme();
             }
@@ -121,22 +130,21 @@ class ThemeServiceProvider extends ServiceProvider
     {
         try{
             // Load the theme assigned to the current store
-            $store = app('current.store');
-
-            // Set the current theme
-            $theme = $store->theme;
+            $theme = $this->app->store->theme;
 
             // Now that we have our theme loaded, lets collect the fallbacks
             $theme->fallbacks = $this->themes($theme);
 
             // Register the theme object with the theme fallbacks
-            $this->app->singleton('current.theme', function () use ($theme){ return $theme; });
+            $this->app->theme->booting($theme);
+
+            $this->app->theme = $theme;
+
+            // note: we boot the theme's callbacks prior to registering
+            // the layouts, composers, routes, and filters.
 
             // Override Laravel's view.finder to support theme fallbacks.
             $this->registerViewFinder();
-
-            // Fire an event to let other modules know the theme is registered (eg. merge theme configs & views)
-            \Event::fire('lavender.theme', [$theme]);
 
             // Now let's register our view composers
             $this->registerComposers();
@@ -149,6 +157,7 @@ class ThemeServiceProvider extends ServiceProvider
 
             // Finally we can load our routes and filters so the app can finish booting.
             $this->registerRoutes();
+
         } catch(QueryException $e){
 
             // missing core tables
@@ -178,9 +187,7 @@ class ThemeServiceProvider extends ServiceProvider
             $paths = array_merge($paths, $module_paths);
         }
 
-        $theme = $this->app->make('current.theme');
-
-        foreach($theme->fallbacks as $fallback){
+        foreach($this->app->theme->fallbacks as $fallback){
 
             foreach($paths as $path){
 

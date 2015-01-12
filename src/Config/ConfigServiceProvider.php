@@ -48,11 +48,15 @@ class ConfigServiceProvider extends ServiceProvider
 
         $this->app['lavender.config']->merge(['defaults']);
 
-        $this->registerListeners();
-
         $this->app->booted(function (){
 
             $this->mergeConfig();
+
+            $this->app->theme->booted(function($theme){
+
+                $this->mergeThemeConfig($theme);
+            });
+
         });
     }
 
@@ -70,14 +74,6 @@ class ConfigServiceProvider extends ServiceProvider
 
             return new Services\Merger;
         });
-    }
-
-    /**
-     *  Register our listeners
-     */
-    private function registerListeners()
-    {
-        \Event::listen('lavender.theme', [$this, 'mergeThemeConfig']);
     }
 
     /**

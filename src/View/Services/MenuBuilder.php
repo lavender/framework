@@ -24,7 +24,14 @@ class MenuBuilder
 
     public function add($group, array $element)
     {
-        $this->menu[$this->type][$group][] = $this->make($element);
+        $this->menu[$this->type][$group] = $this->make($element);
+
+        return $this;
+    }
+
+    public function addTo($group, array $element)
+    {
+        $this->menu[$this->type][$group]->children[] = $this->make($element);
 
         return $this;
     }
@@ -61,7 +68,9 @@ class MenuBuilder
 
             if($k == 'children' && $v){
 
-                array_walk($v, function (&$v){ $v = $this->make($v); });
+                array_walk($v, function (&$v){
+                    $v = $this->make($v);
+                });
 
             }
 

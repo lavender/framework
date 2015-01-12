@@ -1,9 +1,7 @@
 <?php
 namespace Lavender\Workflow;
 
-use Illuminate\Database\QueryException;
 use Illuminate\Support\ServiceProvider;
-use Lavender\Workflow\Exceptions\StateException;
 
 class WorkflowServiceProvider extends ServiceProvider
 {
@@ -13,7 +11,7 @@ class WorkflowServiceProvider extends ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+    protected $defer = true;
 
     /**
      * Get the services provided by the provider.
@@ -23,21 +21,9 @@ class WorkflowServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'workflow',
-            'workflow.session',
-            'workflow.repository',
-            'workflow.renderer'
+            'workflow.factory',
+            'workflow.view'
         ];
-    }
-
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->package('lavender/workflow', 'workflow', realpath(__DIR__));
     }
 
     /**
@@ -47,158 +33,49 @@ class WorkflowServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerConfig();
+        // factory is used to make workflow instances
+        $this->registerFactory();
 
-        $this->registerSession();
-
-        $this->registerRepository();
-
-        $this->registerRenderer();
-
-        $this->registerWorkflow();
-
-        $this->app->booted(function (){
-
-            // once booted, register the resolver for the consumer
-            $this->registerResolver();
-
-            // once booted, register the routes for the consumer
-            $this->registerRoutes();
-        });
-    }
-
-    /**
-     * Merge workflow config
-     */
-    private function registerConfig()
-    {
-        $this->app['lavender.config']->merge(['workflow']);
-
-        $this->app['lavender.theme.config']->merge(['workflow']);
-
-        $merge_workflow_state = [
-            'config' => 'workflow',
-            'default' => 'workflow-state',
-            'depth' => 2,
-        ];
-
-        $merge_workflow_fields = [
-            'config' => 'workflow',
-            'default' => 'workflow-field',
-            'index' => 'fields',
-            'depth' => 4,
-        ];
-
-        $this->app['lavender.config.defaults']->merge([$merge_workflow_state, $merge_workflow_fields]);
+        // view model is returned by the factory and rendered
+        $this->registerViewModel();
     }
 
 
     /**
-     * Register the workflow session
+     * Register the workflow factory
      */
-    private function registerSession()
+    private function registerFactory()
     {
-        $this->app->bindShared('workflow.session', function ($app){
+        $this->app->bindShared('workflow.factory', function ($app){
 
-            return new Services\Session;
+            $resolver = new Services\Resolver($app->config->get('workflow'));
+
+            $repository = new Services\Repository($resolver);
+
+            return new Services\Factory($repository, $app['events']);
         });
     }
+
+
 
     /**
-     * Register the workflow repository
+     * Register the workflow view model
      */
-    private function registerRepository()
+    private function registerViewModel()
     {
-        $this->app->bind('workflow.repository', function ($app){
+        $this->app->bind('workflow.view', function($app, $params){
 
-            return new Services\Repository($app['workflow.session']);
+            list($workflow, $state, $config) = $params;
+
+            $renderer = new Services\Renderer($app->view);
+
+            $viewModel = new Services\ViewModel($workflow, $state, $config[$state]);
+
+            $viewModel->setDefaultRenderer($renderer);
+
+            return $viewModel;
         });
     }
 
-    /**
-     * Register the state renderer
-     */
-    protected function registerRenderer()
-    {
-        $this->app->bindShared('workflow.renderer', function ($app){
 
-            return new Services\Renderer($app->view);
-        });
-    }
-
-    /**
-     * Register the workflow model
-     */
-    private function registerWorkflow()
-    {
-        $this->app->bind('workflow', function ($app){
-
-            return new Services\Workflow($app['workflow.repository'], $app['workflow.renderer']);
-        });
-    }
-
-    /**
-     * Register the workflow post requests
-     */
-    private function registerRoutes()
-    {
-        $route = $this->app->config['store.workflow_base_url'] . '/{workflow}/{state}';
-
-        \Route::post($route, function ($workflow, $state){
-
-            $errors = null;
-
-            $redirect = null;
-
-            try{
-
-                /** @var Model $model */
-                $model = app('workflow.resolver')->resolve($workflow);
-
-                $model->handle($state);
-
-                $redirect = $model->nextSession();
-
-            } catch(StateException $e){
-
-                $errors = $e->getErrors()->messages();
-
-            } catch(QueryException $e){
-
-                //todo log exception error
-                \Message::addError("Database error.");
-
-            } catch(\Exception $e){
-
-                \Message::addError($e->getMessage());
-
-            }
-
-            $response = $redirect ?: \Redirect::back();
-
-            if($errors) $response->withErrors($errors, $workflow . '_' . $state);
-
-            return $response;
-        });
-    }
-
-    /**
-     * Register the workflow resolver
-     */
-    private function registerResolver()
-    {
-        $this->app->bindShared('workflow.resolver', function ($app){
-
-            $resolver = new Services\Resolver;
-
-            foreach($app->config['workflow'] as $alias => $config){
-
-                $class = $app->workflow->register($alias, $config);
-
-                $resolver->register($alias, $class);
-            }
-
-            return $resolver;
-        });
-    }
 }

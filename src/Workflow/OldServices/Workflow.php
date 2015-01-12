@@ -1,10 +1,10 @@
 <?php
-namespace Lavender\Workflow\Services;
+namespace Lavender\Workflow\OldServices;
 
 use Lavender\Workflow\Exceptions\StateException;
-use Lavender\Workflow\Interfaces\WorkflowInterface;
-use Lavender\Workflow\Interfaces\RendererInterface;
-use Lavender\Workflow\Interfaces\RepositoryInterface;
+use Lavender\Workflow\Contracts\WorkflowInterface;
+use Lavender\Workflow\Contracts\RendererInterface;
+use Lavender\Workflow\Contracts\RepositoryInterface;
 
 class Workflow implements WorkflowInterface
 {
@@ -16,7 +16,7 @@ class Workflow implements WorkflowInterface
 
     /**
      * Renderable object
-     * @var State\Renderer
+     * @var RendererInterface
      */
     private $renderer;
 

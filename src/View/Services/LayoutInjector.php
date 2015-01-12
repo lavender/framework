@@ -1,8 +1,6 @@
 <?php
 namespace Lavender\View\Services;
 
-use Lavender\View\Facades\Layout;
-
 class LayoutInjector
 {
     /**
@@ -26,13 +24,12 @@ class LayoutInjector
 
                 if($html = $this->renderByType($childConfig)){
 
-                    \View::inject(
-                        $sectionName,
-                        $childConfig['mode'] == Layout::REPLACE ?
-                            $html : '@parent' . PHP_EOL . $html
-                    );
+                    \View::startSection($sectionName, '@parent' . PHP_EOL . $html);
+
                 }
+
             }
+
         }
     }
 
@@ -46,30 +43,21 @@ class LayoutInjector
         if($config['script']){
 
             return \HTML::script($config['script']);
-
         } elseif($config['meta']){
 
             return \HTML::meta($config['meta']);
-
         } elseif($config['style']){
 
             return \HTML::style($config['style']);
-
         } elseif($config['workflow']){
 
-            return app('workflow.resolver')
-                ->resolve($config['workflow'])
-                ->render();
-
+            return \Workflow::make($config['workflow']);
         } elseif(\View::exists($config['layout'])){
 
-            return \View::make($config['layout'])
-                ->render();
-
+            return \View::make($config['layout']);
         } elseif($config['config']){
 
             return \Config::get($config['config']);
-
         }
         return false;
     }

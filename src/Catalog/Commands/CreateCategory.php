@@ -53,13 +53,13 @@ class CreateCategory extends Command
 
             if($store_id = $this->input->getOption('store')){
 
-                $store = app('store')->find($store_id);
+                $store = entity('store')->find($store_id);
 
                 $data['store'] = $store;
 
             }
 
-            $category = app('category')->fill($data);
+            $category = entity('category')->fill($data);
 
             $category->save();
 

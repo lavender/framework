@@ -1,105 +1,108 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Lavender\Workflow\Interfaces\WorkflowInterface;
-use Lavender\Workflow\Interfaces\SessionInterface;
-use Lavender\Workflow\Interfaces\RepositoryInterface;
 
-class Repository implements RepositoryInterface
+class Repository
 {
 
-    /**
-     * @var Model
-     */
-    protected $model;
+    protected $resolver;
 
     /**
-     * @var SessionInterface
+     * @var array
      */
-    protected $session;
+    protected $instances;
 
 
-    public function __construct(SessionInterface $session)
+    public function __construct(Resolver $resolver)
     {
-        $this->session = $session;
+        $this->resolver = $resolver;
+    }
+
+    public function config($workflow)
+    {
+        return $this->resolver->states($workflow);
     }
 
     /**
      * Find workflow or create new
      * @return mixed
      */
-    public function findOrNew()
+    public function find($workflow)
     {
-        if($found = $this->findBySession()) return $found;
+        if(!isset($this->instances[$workflow])){
 
-        return $this->first();
-    }
+            $this->instances[$workflow] = $this->findOrNew($workflow);
 
-    /**
-     * Set default state
-     */
-    public function first()
-    {
-        return $this->setState($this->model->defaultState());
-    }
+        }
 
-    /**
-     * Set next state
-     */
-    public function next()
-    {
-        return $this->setState($this->model->nextState());
-    }
-
-    /**
-     * @param $state
-     * @return mixed
-     */
-    public function setState($state)
-    {
-        $values = ['state' => $state];
-
-        $this->_put($values);
-
-        return $this->findBySession();
+        return $this->instances[$workflow];
     }
 
     /**
      * Find by session
      * @return mixed
      */
-    public function findBySession()
+    private function findOrNew($workflow)
     {
-        if($found = $this->_get()){
+        if($found = $this->get($workflow)){
 
-            $found = (object)$found;
-
-            if($this->model->hasState($found->state)) return $found;
+            if($this->resolver->hasState($workflow, $found->state)) return $found;
 
         }
 
-        return false;
+        return $this->first($workflow);
     }
 
     /**
-     * Get and set the current model
-     *
-     * @param WorkflowInterface $model
-     * @return void
+     * Set default state
      */
-    public function model(WorkflowInterface $model)
+    private function first($workflow)
     {
-        $this->model = $model;
+        $first = $this->resolver->defaultState($workflow);
+
+        return $this->setState($workflow, $first);
     }
 
-    protected function _get()
+    /**
+     * Set next state
+     * @param $workflow
+     * @param $state
+     * @return mixed
+     */
+    public function next($workflow, $state)
     {
-        return $this->session->get();
+        $next = $this->resolver->nextState($workflow, $state);
+
+        return $this->setState($workflow, $next);
     }
 
-    protected function _put($data)
+    public function redirect($workflow, $state)
     {
-        return $this->session->put($data);
+        return $this->resolver->redirect($workflow, $state);
+    }
+
+    /**
+     * @param $state
+     * @return mixed
+     */
+    private function setState($workflow, $state)
+    {
+        $values = ['state' => $state];
+
+        $this->put($workflow, (object)$values);
+
+        return $this->get($workflow);
+    }
+
+    private function get($workflow)
+    {
+        return \Session::get("workflow_{$workflow}");
+    }
+
+
+    private function put($workflow, $data)
+    {
+        \Session::put("workflow_{$workflow}", $data);
     }
 
 }

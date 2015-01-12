@@ -11,24 +11,27 @@ return [
         'scope' => Scope::IS_GLOBAL,
         'timestamps' => true,
         'attributes' => [
-            'email' => [
-                'label' => 'Email',
-                'type' => Attribute::VARCHAR,
-                'unique' => true,
-            ],
             'username' => [
                 'label' => 'Username',
+                'type' => Attribute::VARCHAR,
+                'unique' => true,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
+            ],
+            'email' => [
+                'label' => 'Email',
                 'type' => Attribute::VARCHAR,
                 'unique' => true,
             ],
             'password' => [
                 'label' => 'Password',
                 'type' => Attribute::VARCHAR,
+                'backend.table' => false,
             ],
             'remember_token' => [
                 'label' => 'Remember Token',
                 'type' => Attribute::VARCHAR,
                 'nullable' => true,
+                'backend.table' => false,
             ],
         ],
         'relationships' => [
@@ -47,19 +50,23 @@ return [
             'email' => [
                 'label' => 'Email',
                 'type' => Attribute::VARCHAR,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
             ],
             'password' => [
                 'label' => 'Password',
                 'type' => Attribute::VARCHAR,
+                'backend.table' => false,
             ],
             'confirmation_code' => [
                 'label' => 'Confirmation Code',
                 'type' => Attribute::VARCHAR,
+                'backend.table' => false,
             ],
             'remember_token' => [
                 'label' => 'Remember Token',
                 'type' => Attribute::VARCHAR,
                 'nullable' => true,
+                'backend.table' => false,
             ],
             'confirmed' => [
                 'label' => 'confirmed',

@@ -1,6 +1,15 @@
 <?php
 
 
+if ( ! function_exists('entity'))
+{
+    function entity($e)
+    {
+        return app("entity.{$e}");
+    }
+}
+
+
 if ( ! function_exists('recursive_merge'))
 {
     /**

@@ -1,84 +1,76 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Illuminate\View\Factory;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Form;
+use Illuminate\Support\Facades\URL;
+use Illuminate\View\Factory as View;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\Support\Contracts\ArrayableInterface as Arrayable;
-use Lavender\Workflow\Interfaces\RendererInterface;
+use Lavender\Workflow\Contracts\RendererInterface;
+use Lavender\Workflow\Contracts\ViewModelInterface;
 
 class Renderer implements RendererInterface
 {
+    /**
+     * @var string form container template
+     */
+    protected $container = 'workflow.form.container';
+
+    /**
+     * @var View
+     */
     protected $view;
-    protected $workflow;
-    protected $state;
-    protected $config;
 
-    public function __construct(Factory $factory)
+
+    /**
+     * @param View $view
+     */
+    public function __construct(View $view)
     {
-        $this->view = $factory;
+        $this->view = $view;
     }
 
-    public function make($workflow, $state, $config)
+    /**
+     * @param ViewModelInterface $viewModel
+     * @return mixed
+     */
+    public function render(ViewModelInterface $viewModel)
     {
-        $this->workflow = $workflow;
+        $this->workflow = $viewModel->getWorkflow();
 
-        $this->state = $state;
+        $this->state = $viewModel->getState();
 
-        $this->config = $config;
-    }
+        $options = $this->getFormOptions();
 
-    protected function formId()
-    {
-        return 'form-'.$this->workflow.'-'.$this->state;
-    }
-
-    protected function formAction()
-    {
-        return \URL::to(\Config::get('store.workflow_base_url').'/'.$this->workflow.'/'.$this->state);
-    }
-
-    public function render()
-    {
-        // load our state config into a transport object
-        $transport = $this->transport();
-
-        // call before filters
-        if(isset($this->config['before'])) $this->handleBefore($this->config['before'], $transport);
-
-        $container = $this->view->make($transport->layout);
-
-        // return rendered form fields
-        if($transport->fields){
-
-            $groups = $this->renderFields($transport->fields);
-
-            $container->withGroups($groups);
-
+        try{
+            $fields = $this->renderFields($viewModel->fields);
+        }catch (\Exception $e){
+            var_dump($e->getMessage());die;
         }
-
-        // return the view container w/ options and errors
-        return $container->withOptions($transport->options)
-            ->withErrors($this->hasError('form'));
+        return $this->view->make($this->container)
+            ->with('options', $options)
+            ->with('fields', $fields)
+            ->render();
     }
 
-    protected function transport()
+    /**
+     * Create the options passed to Form:open()
+     * @return array
+     */
+    protected function getFormOptions()
     {
-        $transport = new Transport;
+        $formId = 'form-'.$this->workflow.'-'.$this->state;
 
-        // options passed to Form:open()
-        $transport->options = [
+        $baseUrl = Config::get('store.workflow_base_url');
+
+        $formAction = URL::to($baseUrl.'/'.$this->workflow.'/'.$this->state);
+
+        return [
             'method' => 'post',
-            'id' => $this->formId(),
-            'url' => $this->formAction(),
+            'id' => $formId,
+            'url' => $formAction,
         ];
-
-        // prepare fields
-        $transport->fields = $this->config['fields'];
-
-        // prepare layout
-        $transport->layout = $this->config['layout'];
-
-        return $transport;
     }
 
     protected function renderFields($fields)
@@ -124,33 +116,33 @@ class Renderer implements RendererInterface
                 case 'email':
                 case 'url':
                 case 'number':
-                    $html .= \Form::$field['type']($name, $field['value'], $field['options']);
+                    $html .= Form::$field['type']($name, $field['value'], $field['options']);
                     break;
 
                 // Button fields: $value, $options
                 case 'reset':
                 case 'submit':
                 case 'button':
-                    $html .= \Form::$field['type']($field['value'], $field['options']);
+                    $html .= Form::$field['type']($field['value'], $field['options']);
                     break;
 
                 // Protected fields: $name, $options
                 case 'file':
                     $form_options['files'] = true;
                 case 'password':
-                    $html .= \Form::$field['type']($name, $field['options']);
+                    $html .= Form::$field['type']($name, $field['options']);
                     break;
 
                 // Select fields: $name, $list, $selected, $options
                 case 'select':
-                    $html .= \Form::select($name, $field['values'], $field['value'], $field['options']);
+                    $html .= Form::select($name, $field['values'], $field['value'], $field['options']);
                     break;
 
                 // Checkable fields: $name, $value, $checked, $options
                 case 'checkbox':
                     $field['value']?:1;
                 case 'radio':
-                    $html .= \Form::$field['type']($name, $field['value'], $field['checked'], $field['options']);
+                    $html .= Form::$field['type']($name, $field['value'], $field['checked'], $field['options']);
                     break;
 
                 // todo implement these also:
@@ -186,8 +178,7 @@ class Renderer implements RendererInterface
 
         }
 
-        //todo support groups
-        return ['default' => $rendered];
+        return $rendered;
     }
 
     protected function handleBefore($filters, &$transport)

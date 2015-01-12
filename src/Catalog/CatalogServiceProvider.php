@@ -61,17 +61,15 @@ class CatalogServiceProvider extends ServiceProvider
 
     private function registerInstaller()
     {
-        $this->app['lavender.installer']->update('Install root category', function ($console){
+        $this->app->installer->update('Install root category', function ($console){
 
             // If a root category doesn't exist, create it now
-            if(!app('current.store')->root_category){
+            if(!$this->app->store->root_category){
 
-                $console->call('lavender:category', ['--store' => app('current.store')->id]);
+                $console->call('lavender:category', ['--store' => $this->app->store->id]);
 
-                // Register the new store object
-                $store = app('store')->find(app('current.store')->id);
-
-                $this->app->singleton('current.store', function () use ($store){ return $store; });
+                // Reload the new store object
+                $this->app->store = entity('store')->find($this->app->store->id);
             }
         });
     }
@@ -83,7 +81,7 @@ class CatalogServiceProvider extends ServiceProvider
 
             $url = \Config::get('store.product_url') . '/' . $product;
 
-            $product = app('product')->findByAttribute('url', $url);
+            $product = entity('product')->findByAttribute('url', $url);
 
             return $this->app->view->make('catalog.product.view')
                 ->withProduct($product);
@@ -94,7 +92,7 @@ class CatalogServiceProvider extends ServiceProvider
 
             $url = \Config::get('store.category_url') . '/' . $category;
 
-            $category = app('category')->findByAttribute('url', $url);
+            $category = entity('category')->findByAttribute('url', $url);
 
             return $this->app->view->make('catalog.category.view')
                 ->withCategory($category)

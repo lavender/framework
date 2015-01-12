@@ -55,12 +55,12 @@ class CreateTheme extends Command
 
             if($store_id = $this->input->getOption('store')){
 
-                $store = app('store')->find($store_id);
+                $store = entity('store')->find($store_id);
 
                 $data['store'] = $store;
             }
 
-            $theme = app('theme')->fill($data);
+            $theme = entity('theme')->fill($data);
 
             $theme->save();
 

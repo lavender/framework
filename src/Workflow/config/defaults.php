@@ -7,7 +7,9 @@ return [
         'fields' => [],
         'before' => [],
         'after' => [],
-        'layout' => 'workflow.form.container',
+        'layout' => null,
+        'renderer' => null,
+        'redirect' => null,
     ],
 
     'workflow-field' => [

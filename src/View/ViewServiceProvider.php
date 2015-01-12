@@ -20,17 +20,14 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['message.service', 'menu.builder', 'asset.publisher', 'url', 'layout.injector'];
-    }
-
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->package('lavender/view', 'view');
+        return [
+            'url',
+            'html.table',
+            'asset.publisher',
+            'layout.injector',
+            'menu.builder',
+            'message.service',
+        ];
     }
 
     /**
@@ -40,6 +37,8 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->registerHtmlTable();
+
         $this->registerMessageBag();
 
         $this->registerMenuBuilder();
@@ -49,6 +48,34 @@ class ViewServiceProvider extends ServiceProvider
         $this->registerUrlGenerator();
 
         $this->registerLayoutInjector();
+    }
+
+
+    private function registerHtmlTable()
+    {
+        $this->app->bindShared('html.table', function ($app){
+
+            return new Html\Table;
+
+        });
+
+        $this->app->bindShared('html.table.database', function ($app){
+
+            return app('Lavender\View\Html\Table\Database');
+
+        });
+
+        $this->app->bindShared('html.table.config', function ($app){
+
+            return app('Lavender\View\Html\Table\Config');
+
+        });
+
+        $this->app->bindShared('html.table.basic', function ($app){
+
+            return app('Lavender\View\Html\Table\Basic');
+
+        });
     }
 
 

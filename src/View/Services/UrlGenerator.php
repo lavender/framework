@@ -35,7 +35,7 @@ class UrlGenerator extends CoreUrlGenerator
     {
         $asset_path = $asset;
 
-        foreach(app('current.theme')->fallbacks as $fallback){
+        foreach(app('theme')->fallbacks as $fallback){
 
             $asset_path = 'assets/'.$fallback.'/'.$asset;
 

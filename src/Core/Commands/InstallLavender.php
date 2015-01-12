@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Entity\Commands;
+namespace Lavender\Core\Commands;
 
 use Illuminate\Console\Command;
 
@@ -28,11 +28,11 @@ class InstallLavender extends Command
     {
         try{
 
-            $callbacks = $this->laravel['lavender.installer']->installs();
+            $callbacks = $this->laravel->installer->installs();
 
             foreach($callbacks as $callback) $callback($this);
 
-            $callbacks = $this->laravel['lavender.installer']->updates();
+            $callbacks = $this->laravel->installer->updates();
 
             foreach($callbacks as $callback) $callback($this);
 

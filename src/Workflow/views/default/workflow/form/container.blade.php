@@ -1,20 +1,12 @@
 {{ Form::open( $options ) }}
 
-    @foreach( $groups as $group => $fields )
+    @foreach( $fields as $class => $field )
 
-        <fieldset name="{{{ $group }}}">
+        <div class="field {{{ $class }}}">
 
-            @foreach( $fields as $class => $field )
+            {{ $field }}
 
-                <div class="field {{{ $class }}}">
-
-                    {{ $field }}
-
-                </div>
-
-            @endforeach
-
-        </fieldset>
+        </div>
 
     @endforeach
 

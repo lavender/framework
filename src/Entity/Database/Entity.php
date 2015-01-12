@@ -30,9 +30,54 @@ class Entity extends Eloquent
      */
     public function reload()
     {
-        $this->config = \Config::get("entity.{$this->entity}");
-
+        $this->config = array_merge(
+            ['attributes' => [],'relationships' => []],
+            \Config::get("entity.{$this->entity}", [])
+        );
         $this->fillable = array_keys($this->config['attributes']);
+    }
+
+    /**
+     * Render an attribute by key
+     * @param $key
+     * @return mixed
+     */
+    public function backendValue($key)
+    {
+        return $this->renderer('backend', $key)
+            ->render($this, $key);
+    }
+
+    /**
+     * Render an attribute by key
+     * @param $key
+     * @return mixed
+     */
+    public function frontendValue($key)
+    {
+        return $this->renderer('frontend', $key)
+            ->render($this, $key);
+    }
+
+    /**
+     * Load the attributes renderer if available
+     * else use default renderer (returns raw value)
+     * @param $key
+     * @return mixed
+     */
+    protected function renderer($type, $key)
+    {
+        if(isset($this->config['attributes'][$key])){
+
+            $attribute = $this->config['attributes'][$key];
+
+            if(isset($attribute[$type . '.renderer'])){
+
+                return new $attribute[$type . '.renderer'];
+            }
+
+        }
+        return app('attribute.renderer');
     }
 
     /**
@@ -88,7 +133,7 @@ class Entity extends Eloquent
 
             $relationship = $this->config['relationships'][$key];
 
-            $model = app($relationship['entity']);
+            $model = entity($relationship['entity']);
 
             $onEntity = snake_case($model->getEntity());
 
@@ -314,7 +359,7 @@ class Entity extends Eloquent
     {
         list($entity, $attribute) = $userdata;
 
-        $value = app($entity)->findByAttribute($attribute, $value);
+        $value = entity($entity)->findByAttribute($attribute, $value);
     }
 
     /**

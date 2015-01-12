@@ -371,6 +371,6 @@ class Guard extends CoreGuard
 
     public function model()
     {
-        return app($this->name);
+        return entity($this->name);
     }
 }

@@ -13,6 +13,7 @@ return [
             'name' => [
                 'label' => 'Name',
                 'type' => Attribute::VARCHAR,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
             ],
             'description' => [
                 'label' => 'Description',
@@ -49,16 +50,16 @@ return [
     'product' => [
         'class' => 'Lavender\Catalog\Database\Product',
         'scope' => Scope::IS_STORE,
-        'backend.table' => 'Lavender\Backend\Entity\Table',
-        'backend.form' => 'Lavender\Backend\Entity\Form',
         'attributes' => [
             'sku' => [
                 'label' => 'Sku',
                 'type' => Attribute::VARCHAR,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
             ],
             'name' => [
                 'label' => 'Name',
                 'type' => Attribute::VARCHAR,
+                'backend.renderer' => 'Lavender\Backend\Handlers\Entity\EditLink',
             ],
             'price' => [
                 'label' => 'Price',
@@ -71,7 +72,7 @@ return [
                 'before_save' => 'Lavender\Catalog\Handlers\ProductUrl'
             ],
             'special_price' => [
-                'label' => 'Price',
+                'label' => 'Special Price',
                 'type' => Attribute::DECIMAL,
                 'default' => 0.00,
             ],

@@ -123,14 +123,14 @@ class MigrateEntity extends Command
 
                 if(isset($config[$entity])){
 
-                    $this->updateEntity(app($entity), $this->config[$entity]);
+                    $this->updateEntity(entity($entity), $this->config[$entity]);
                 }
             }
         } else{
 
             foreach($config as $entity => $values){
 
-                $this->updateEntity(app($entity), $values);
+                $this->updateEntity(entity($entity), $values);
             }
         }
 
@@ -255,7 +255,7 @@ class MigrateEntity extends Command
 
             $result[$table . '_' . $fk['col'] . '_foreign'] = '$table->foreign("' . $fk['col'] . '")
                 ->references("' . $fk['ref_col'] . '")
-                ->on("' . app($fk['ref_table'])->getTable() . '")
+                ->on("' . entity($fk['ref_table'])->getTable() . '")
                 ->onDelete("cascade");';
         }
 

@@ -20,7 +20,7 @@ class EntityServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['lavender.installer', 'migrate.entity'];
+        return ['migrate.entity', 'attribute.renderer'];
     }
 
     /**
@@ -32,7 +32,7 @@ class EntityServiceProvider extends ServiceProvider
     {
         $this->package('lavender/entity', 'entity', realpath(__DIR__));
 
-        $this->commands(['lavender.install', 'migrate.entity']);
+        $this->commands(['migrate.entity']);
     }
 
     /**
@@ -53,9 +53,18 @@ class EntityServiceProvider extends ServiceProvider
 
         $this->registerConfig();
 
+        $this->registerAttributeRenderer();
+
         $this->app->booted(function (){
 
             $this->bindEntities();
+        });
+    }
+
+    protected function registerAttributeRenderer()
+    {
+        $this->app->bindShared('attribute.renderer', function($app){
+            return new Services\AttributeRenderer;
         });
     }
 
@@ -67,13 +76,14 @@ class EntityServiceProvider extends ServiceProvider
     {
         $entities = $this->app->config['entity'];
 
-        foreach($entities as $entity => &$config){
+        foreach($entities as $e => &$config){
 
             merge_defaults($config, 'entity');
 
-            $this->app->bind($entity, function ($app, $default) use ($config){
+            $this->app->bind("entity.$e", function ($app, $default) use ($config){
 
                 return new $config['class'];
+
             });
         }
 
@@ -91,12 +101,7 @@ class EntityServiceProvider extends ServiceProvider
      */
     protected function registerInstaller()
     {
-        $this->app->bindShared('lavender.installer', function ($app){
-
-            return new Database\Migrations\Installer();
-        });
-
-        $this->app['lavender.installer']->install('Install/update entities', function ($console){
+        $this->app->installer->install('Install/update entities', function ($console){
 
             // Create first migration
             $console->call('migrate:entity', ['name' => 'install_lavender_' . time()]);
@@ -111,11 +116,6 @@ class EntityServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->app->bindShared('lavender.install', function ($app){
-
-            return new Commands\InstallLavender();
-        });
-
         $this->app->bindShared('migrate.entity', function ($app){
 
             $packagePath = $app['path.base'] . '/vendor';
