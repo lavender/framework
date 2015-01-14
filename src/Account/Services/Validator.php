@@ -30,7 +30,9 @@ class Validator
      */
     public function validateRuleset(UserInterface $account, $ruleset = 'create')
     {
-        $exists = \Account::user()->refresh($account);
+        $entity = $account->getEntity();
+
+        $exists = \Account::$entity()->refresh($account);
 
         if($ruleset == 'create' && $exists){
 

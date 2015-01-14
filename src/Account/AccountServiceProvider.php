@@ -31,6 +31,7 @@ class AccountServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->package('lavender/account', 'account', realpath(__DIR__));
+        $this->commands(['admin.creator']);
     }
 
     /**
@@ -40,6 +41,33 @@ class AccountServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->registerCommands();
+
+        $this->registerInstaller();
+    }
+
+    /**
+     * Register view installer
+     */
+    private function registerInstaller()
+    {
+        $this->app->installer->update('Install admin account', function ($console){
+
+            // If a default theme doesn't exist, create it now
+            if(!entity('admin')->all()){
+
+                $console->call('lavender:admin');
+
+            }
+        });
+    }
+    /**
+     * Register artisan commands
+     */
+    private function registerCommands()
+    {
+        $this->app->bind('admin.creator', function (){
+            return new Commands\CreateAdmin;
+        });
     }
 }
