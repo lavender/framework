@@ -16,7 +16,6 @@ if ( ! function_exists('recursive_merge'))
      * Array merge recursive
      * @param array $arr1
      * @param array $arr2
-     * @param array $defaults
      * @return array
      */
     function recursive_merge($arr1, $arr2)
@@ -65,10 +64,14 @@ if ( ! function_exists('sort_children'))
      * @param string $key index used for positions
      * @param int $pos default starting position
      */
-    function sort_children(array &$array, $key = 'position', $pos = 1)
+    function sort_children(array &$array, $key = 'position')
     {
-        array_walk($array, function(&$v) use (&$pos){$v = [$v, $pos++];});
+        $pos = 1;
 
+        // decorate array
+        foreach($array as &$v) $v = [$v, $pos++];
+
+        // sort array
         uasort($array, function ($a, $b) use ($key){
 
             $_a = isset($a[0][$key]) ? $a[0][$key] : null;
@@ -80,7 +83,8 @@ if ( ! function_exists('sort_children'))
             return $a[1] < $b[1] ? -1 : 1;
         });
 
-        array_walk($array, function(&$v){$v = $v[0];});
+        // un-decorate array
+        foreach($array as &$v) $v = $v[0];
     }
 }
 
