@@ -4,6 +4,7 @@ namespace Lavender\Auth\Services\Account;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Auth\DatabaseUserProvider;
 use Illuminate\Auth\EloquentUserProvider;
+use Illuminate\Support\Facades\Config;
 
 class Manager extends AuthManager
 {
@@ -85,6 +86,12 @@ class Manager extends AuthManager
      */
     protected function createEloquentProvider()
     {
+        if(isset($this->config['entity'])){
+
+            $this->config['model'] = Config::get('entity.'.$this->config['entity'].'.class');
+
+        }
+
         $model = $this->config['model'];
 
         return new EloquentUserProvider($this->app['hash'], $model);
