@@ -4,7 +4,6 @@ namespace Lavender\Workflow\Services;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
-use Lavender\Workflow\Contracts\RepositoryInterface;
 
 class Factory
 {

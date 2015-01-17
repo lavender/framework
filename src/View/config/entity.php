@@ -1,7 +1,7 @@
 <?php
 
-use Lavender\Entity\Facades\Attribute;
-use Lavender\Entity\Facades\Relationship;
+use Lavender\Support\Facades\Attribute;
+use Lavender\Support\Facades\Relationship;
 
 return [
 

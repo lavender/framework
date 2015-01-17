@@ -1,6 +1,6 @@
 <?php
 
-use Lavender\View\Facades\Layout;
+use Lavender\Support\Facades\Layout;
 
 return [
 

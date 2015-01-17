@@ -1,12 +1,9 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-
-//use Illuminate\Support\Facades\Redirect;
-
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
-use Lavender\Workflow\Contracts\WorkflowContract;
+use Lavender\Support\Contracts\WorkflowContract;
 
 class Resolver
 {
@@ -79,7 +76,7 @@ class Resolver
 
                             array_walk_depth($fields, 1, function(&$data){
 
-                                merge_defaults($data, 'workflow-field');
+                                merge_defaults($data, 'workflow');
 
                             });
 

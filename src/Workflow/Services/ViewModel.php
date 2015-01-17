@@ -1,8 +1,8 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Lavender\Workflow\Contracts\ViewModelInterface;
-use Lavender\Workflow\Contracts\RendererInterface;
+use Lavender\Support\Contracts\ViewModelInterface;
+use Lavender\Support\Contracts\RendererInterface;
 
 class ViewModel implements ViewModelInterface
 {

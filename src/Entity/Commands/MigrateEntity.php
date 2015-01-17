@@ -3,8 +3,8 @@ namespace Lavender\Entity\Commands;
 
 use Illuminate\Console\Command;
 use Lavender\Entity\Database\Migrations\Creator;
-use Lavender\Entity\Facades\Attribute;
-use Lavender\Entity\Facades\Relationship;
+use Lavender\Support\Facades\Attribute;
+use Lavender\Support\Facades\Relationship;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 

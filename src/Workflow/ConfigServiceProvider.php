@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Lavender\Workflow\Exceptions\StateException;
-use Lavender\Workflow\Facades\Workflow;
+use Lavender\Support\Facades\Workflow;
 
 class ConfigServiceProvider extends ServiceProvider
 {

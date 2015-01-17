@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Lavender\Entity\Contracts\EntityInterface;
-use Lavender\Entity\Facades\Relationship;
+use Lavender\Support\Contracts\EntityInterface;
+use Lavender\Support\Facades\Relationship;
 
 class Entity extends Eloquent implements EntityInterface
 {

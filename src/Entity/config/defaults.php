@@ -1,6 +1,6 @@
 <?php
 
-use Lavender\Entity\Facades\Attribute;
+use Lavender\Support\Facades\Attribute;
 
 return [
 

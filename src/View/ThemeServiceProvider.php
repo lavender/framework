@@ -3,10 +3,7 @@ namespace Lavender\View;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\QueryException;
-use Illuminate\View\Factory;
 use Lavender\View\Database\Theme;
-use Lavender\View\Facades\Layout;
-use Lavender\Workflow\Interfaces\WorkflowInterface;
 
 class ThemeServiceProvider extends ServiceProvider
 {

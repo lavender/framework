@@ -2,17 +2,8 @@
 
 
 return [
-//
-//    'workflow-state' => [
-//        'fields' => [],
-//        'before' => [],
-//        'after' => [],
-//        'layout' => null,
-//        'renderer' => null,
-//        'redirect' => null,
-//    ],
 
-    'workflow-field' => [
+    'workflow' => [
         // field label (optional)
         'label' => null,
         'label_options' => [],
