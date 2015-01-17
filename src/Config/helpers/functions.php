@@ -23,9 +23,11 @@ if ( ! function_exists('recursive_merge'))
     {
         if(!is_array($arr1) || !is_array($arr2)) return $arr2;
 
-        foreach($arr2 as $key => $val){
+        foreach($arr2 as $key => $val2){
 
-            $arr1[$key] = recursive_merge(@$arr1[$key], $val);
+            $val1 = isset($arr1[$key]) ? $arr1[$key] : [];
+
+            $arr1[$key] = recursive_merge($val1, $val2);
 
         }
 
@@ -68,7 +70,13 @@ if ( ! function_exists('sort_children'))
         array_walk($array, function(&$v) use (&$pos){$v = [$v, $pos++];});
 
         uasort($array, function ($a, $b) use ($key){
-            if(@$a[0][$key] != @$b[0][$key]) return (@$a[0][$key] < @$b[0][$key]) ? -1 : 1;
+
+            $_a = isset($a[0][$key]) ? $a[0][$key] : null;
+
+            $_b = isset($b[0][$key]) ? $b[0][$key] : null;
+
+            if($_a != $_b) return ($_a < $_b) ? -1 : 1;
+
             return $a[1] < $b[1] ? -1 : 1;
         });
 
