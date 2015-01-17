@@ -37,40 +37,26 @@ class Renderer implements RendererInterface
      */
     public function render(ViewModelInterface $viewModel)
     {
-        $this->workflow = $viewModel->getWorkflow();
-
-        $this->state = $viewModel->getState();
-
-        $options = $this->getFormOptions();
-
         try{
+            $this->workflow = $viewModel->workflow;
+
+            $this->state = $viewModel->state;
+
+            $options = $viewModel->options;
+
             $fields = $this->renderFields($viewModel->fields);
+
         }catch (\Exception $e){
-            var_dump($e->getMessage());die;
+
+            var_dump($e->getMessage());
+            var_dump($e->getMessage());
+            die;
+
         }
         return $this->view->make($this->container)
             ->with('options', $options)
             ->with('fields', $fields)
             ->render();
-    }
-
-    /**
-     * Create the options passed to Form:open()
-     * @return array
-     */
-    protected function getFormOptions()
-    {
-        $formId = 'form-'.$this->workflow.'-'.$this->state;
-
-        $baseUrl = Config::get('store.workflow_base_url');
-
-        $formAction = URL::to($baseUrl.'/'.$this->workflow.'/'.$this->state);
-
-        return [
-            'method' => 'post',
-            'id' => $formId,
-            'url' => $formAction,
-        ];
     }
 
     protected function renderFields($fields)

@@ -1,34 +1,40 @@
 <?php
 namespace Lavender\Account\Handlers;
 
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Mail;
+use Lavender\Account\Facades\Account;
+use Lavender\View\Facades\Message;
+
 class CreateUser
 {
 
     public function handle($data)
     {
-        if(!\Account::user()->findByEmail($data['email'])){
+        if(!Account::user()->findByEmail($data['email'])){
 
-            \Account::user()->register($data);
+            Account::user()->register($data);
 
-            $user = \Account::user()->findByEmail($data['email']);
+            $user = Account::user()->findByEmail($data['email']);
 
             if($user->id){
 
-                if(\Config::get('store.signup_email')){
+                if(Config::get('store.signup_email')){
 
-                    \Mail::queueOn(
+                    Mail::queueOn(
                         'default',
-                        \Config::get('store.email_account_confirmation'),
+                        Config::get('store.email_account_confirmation'),
                         compact('user'),
                         function ($message) use ($user){
-                            $message->to($user->email)->subject(\Lang::get('account.email.confirmation.subject'));
+                            $message->to($user->email)->subject(Lang::get('account.email.confirmation.subject'));
                         }
                     );
 
-                    \Message::addSuccess(\Lang::get('account.alerts.instructions_sent'));
+                    Message::addSuccess(Lang::get('account.alerts.instructions_sent'));
                 } else{
 
-                    \Message::addSuccess(\Lang::get('account.alerts.account_created'));
+                    Message::addSuccess(Lang::get('account.alerts.account_created'));
                 }
             } else{
 
@@ -36,7 +42,7 @@ class CreateUser
             }
         } else{
 
-            throw new \Exception(\Lang::get('account.alerts.duplicated_credentials'));
+            throw new \Exception(Lang::get('account.alerts.duplicated_credentials'));
         }
     }
 }

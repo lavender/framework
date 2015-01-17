@@ -59,9 +59,9 @@ class ViewServiceProvider extends ServiceProvider
 
         });
 
-        $this->app->bindShared('html.table.database', function ($app){
+        $this->app->bindShared('html.table.entity', function ($app){
 
-            return app('Lavender\View\Html\Table\Database');
+            return app('Lavender\View\Html\Table\Entity');
 
         });
 

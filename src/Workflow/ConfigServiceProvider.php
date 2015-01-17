@@ -52,12 +52,6 @@ class ConfigServiceProvider extends ServiceProvider
 
             $this->registerRoutes();
 
-            $this->app->theme->booted(function(){
-
-                $this->registerListeners();
-
-            });
-
         });
 
     }
@@ -68,23 +62,6 @@ class ConfigServiceProvider extends ServiceProvider
     private function registerConfig()
     {
         $this->app['lavender.config']->merge(['workflow']);
-
-        $this->app['lavender.theme.config']->merge(['workflow']);
-
-        $merge_workflow_state = [
-            'config' => 'workflow',
-            'default' => 'workflow-state',
-            'depth' => 2,
-        ];
-
-        $merge_workflow_fields = [
-            'config' => 'workflow',
-            'default' => 'workflow-field',
-            'index' => 'fields',
-            'depth' => 4,
-        ];
-
-        $this->app['lavender.config.defaults']->merge([$merge_workflow_state, $merge_workflow_fields]);
     }
 
     public function registerListeners()
@@ -121,11 +98,7 @@ class ConfigServiceProvider extends ServiceProvider
 
             try{
 
-                $model = Workflow::make($workflow);
-
-                $model->handle($state, Input::all());
-
-                $response = Workflow::next($workflow, $state);
+                $response = Workflow::next($workflow, $state, Input::all(), $response);
 
             } catch(StateException $e){
 

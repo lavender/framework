@@ -2,15 +2,15 @@
 
 
 return [
-
-    'workflow-state' => [
-        'fields' => [],
-        'before' => [],
-        'after' => [],
-        'layout' => null,
-        'renderer' => null,
-        'redirect' => null,
-    ],
+//
+//    'workflow-state' => [
+//        'fields' => [],
+//        'before' => [],
+//        'after' => [],
+//        'layout' => null,
+//        'renderer' => null,
+//        'redirect' => null,
+//    ],
 
     'workflow-field' => [
         // field label (optional)

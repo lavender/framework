@@ -3,13 +3,16 @@ namespace Lavender\View\Html\Table;
 
 use Lavender\Entity\Database\Repository;
 
-class Database extends Basic
+class Entity extends Basic
 {
-    public $layout = 'layouts.elements.table.database';
+    public $layout = 'layouts.elements.table.entity';
 
     public $attributes = [];
 
-    protected $repository = null;
+    /**
+     * @var Repository
+     */
+    protected $repository;
 
     public function __construct(Repository $repository)
     {
@@ -21,6 +24,8 @@ class Database extends Basic
         $this->columns = $this->repository->columns();
 
         $this->rows = $this->repository->rows();
+
+        $this->table = $this->repository->entity->getEntity();
 
         return parent::render();
     }

@@ -3,13 +3,30 @@ namespace Lavender\Workflow\Services;
 
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Redirect;
+use Lavender\Workflow\Contracts\RepositoryInterface;
 
 class Factory
 {
     /**
-     * @var Repository
+     * @var array
      */
-    protected $repository;
+    protected $repositories = [];
+
+    /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
+     * @var Resolver
+     */
+    protected $resolver;
+
+    /**
+     * @var Validator
+     */
+    protected $validator;
 
     /**
      * @var Dispatcher
@@ -17,18 +34,25 @@ class Factory
     protected $events;
 
     /**
-     * Instantiate a new workflow object
-     *
-     * @param Repository $repository
+     * @var Redirect
+     */
+    protected $redirect;
+
+    /**
+     * @param Session $session
+     * @param Resolver $resolver
      * @param Dispatcher $events
      */
-    public function __construct(Repository $repository, Dispatcher $events)
+    public function __construct(Session $session, Resolver $resolver, Validator $validator, Dispatcher $events)
     {
-        $this->repository = $repository;
+        $this->session  = $session;
+
+        $this->resolver  = $resolver;
+
+        $this->validator  = $validator;
 
         $this->events  = $events;
     }
-
 
     /**
      * Get the evaluated view contents for the given workflow.
@@ -38,29 +62,59 @@ class Factory
      */
     public function make($workflow)
     {
-        $found = $this->repository->find($workflow);
+        $config = $this->resolver->resolve($workflow);
 
-        $config = $this->repository->config($workflow);
+        $state = $this->session->find($workflow, array_keys($config));
 
-        $view = App::make('workflow.view', [$workflow, $found->state, $config]);
+        $view = App::make('workflow.view')
+            ->with('fields', $config[$state]['fields'])
+            ->with('options', $config[$state]['options'])
+            ->with('workflow', $workflow)
+            ->with('state', $state);
 
-        $this->events->fire("workflow.{$workflow}.{$found->state}", [$view]);
+        $this->events->fire("workflow.{$workflow}.{$state}.before", [$view]);
 
         return $view;
     }
-
 
     /**
      * Get the red view contents for the given workflow.
      *
      * @param  string $workflow
+     * @param string $state
+     * @param array $request
      * @return ViewModel
      */
-    public function next($workflow, $state)
+    public function next($workflow, $state, $request, $response)
     {
-        $found = $this->repository->next($workflow, $state);
+        $this->redirect = $response;
 
-        return $this->repository->redirect($workflow, $found->state);
+        // get workflow config
+        $config = $this->resolver->resolve($workflow);
+
+        // find current state in session
+        $current_state = $this->session->find($workflow, array_keys($config));
+
+        if($current_state == $state){
+
+            // validate request
+            $this->validator->run($config[$state]['fields'], $request);
+
+            // fire callbacks
+            $this->events->fire("workflow.{$workflow}.{$state}.after", [$request]);
+
+            // set next state
+            $this->session->next($workflow, $state, array_keys($config));
+
+        }
+
+        return $this->redirect;
     }
 
+    public function redirect($redirect)
+    {
+        if(is_string($redirect)) $redirect = Redirect::to($redirect);
+
+        $this->redirect = $redirect;
+    }
 }

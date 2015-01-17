@@ -17,7 +17,11 @@ class Basic
      */
     public function render()
     {
-        if(!isset($this->table)) throw new \Exception('Invalid instantiation of '.get_class($this));
+        if(!isset($this->table)){
+            //todo can not throw exception in view
+            var_dump('Invalid instantiation of '.get_class($this));
+            die;
+        }
 
         \Event::fire('html.table.'.$this->table, [$this]);
 

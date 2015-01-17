@@ -20,7 +20,7 @@ class AccountServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -31,6 +31,7 @@ class AccountServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->package('lavender/account', 'account', realpath(__DIR__));
+
         $this->commands(['admin.creator']);
     }
 
@@ -44,7 +45,33 @@ class AccountServiceProvider extends ServiceProvider
         $this->registerCommands();
 
         $this->registerInstaller();
+
+        $this->registerListeners();
     }
+
+    private function registerListeners()
+    {
+        $this->app->events->listen(
+            'workflow.register.create_user.after',
+            'Lavender\Account\Handlers\CreateUser@handle'
+        );
+
+        $this->app->events->listen(
+            'workflow.login.login_user.after',
+            'Lavender\Account\Handlers\DoLogin@handle'
+        );
+
+        $this->app->events->listen(
+            'workflow.forgot_password.request_reset.after',
+            'Lavender\Account\Handlers\ForgotPassword@handle'
+        );
+
+        $this->app->events->listen(
+            'workflow.reset_password.do_reset.after',
+            'Lavender\Account\Handlers\ResetPassword@handle'
+        );
+    }
+
 
     /**
      * Register view installer
