@@ -21,6 +21,7 @@ class Workflow implements WorkflowInterface
      * Render the form
      * @return string
      * @throws \Exception
+     * @todo handle exceptions better
      */
     public function render()
     {

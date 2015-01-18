@@ -2,10 +2,16 @@
 namespace Lavender\Workflow\Services;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Redirect;
 use Lavender\Support\Contracts\WorkflowInterface;
 
 class Factory
 {
+    /**
+     * @var \Illuminate\Http\RedirectResponse
+     */
+    protected $response;
+
     /**
      * @var Session
      */
@@ -28,6 +34,8 @@ class Factory
      */
     public function __construct(Session $session, Resolver $resolver, Validator $validator)
     {
+        $this->response = Redirect::back();
+
         $this->session  = $session;
 
         $this->resolver  = $resolver;
@@ -80,6 +88,21 @@ class Factory
             $workflow->state,
             $workflow->states
         );
+    }
+
+    public function redirect($redirect)
+    {
+        if(is_string($redirect)) $redirect = Redirect::to($redirect);
+
+        $this->response = $redirect;
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function response()
+    {
+        return $this->response;
     }
 
 

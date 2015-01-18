@@ -94,8 +94,6 @@ class ConfigServiceProvider extends ServiceProvider
 
             $errors = null;
 
-            $response = Redirect::back();
-
             try{
 
                 $model = Workflow::make($workflow);
@@ -116,6 +114,8 @@ class ConfigServiceProvider extends ServiceProvider
                 \Message::addError($e->getMessage());
 
             }
+
+            $response = Workflow::response();
 
             if($errors) $response->withErrors($errors, $workflow . '_' . $state);
 
