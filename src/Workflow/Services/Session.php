@@ -59,7 +59,7 @@ class Session
 
         }
 
-        $state = reset($workflow->workflow);
+        $state = reset($workflow->states);
 
         $this->set($workflow->workflow, $state);
 
@@ -67,7 +67,7 @@ class Session
     }
 
     /**
-     * @param $workflow
+     * @param $name
      * @return mixed
      */
     private function get($name)
@@ -76,7 +76,7 @@ class Session
     }
 
     /**
-     * @param $workflow
+     * @param $name
      * @param $state
      */
     private function set($name, $state)
