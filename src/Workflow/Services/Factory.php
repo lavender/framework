@@ -34,8 +34,6 @@ class Factory
      */
     public function __construct(Session $session, Resolver $resolver, Validator $validator)
     {
-        $this->response = Redirect::back();
-
         $this->session  = $session;
 
         $this->resolver  = $resolver;
@@ -102,6 +100,8 @@ class Factory
      */
     public function response()
     {
+        if(!$this->response) $this->response = Redirect::back();
+
         return $this->response;
     }
 
