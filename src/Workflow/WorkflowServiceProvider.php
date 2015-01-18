@@ -54,7 +54,7 @@ class WorkflowServiceProvider extends ServiceProvider
 
             $validator = new Services\Validator();
 
-            return new Services\Factory($session, $resolver, $validator, $app->events);
+            return new Services\Factory($session, $resolver, $validator);
         });
     }
 
@@ -65,11 +65,11 @@ class WorkflowServiceProvider extends ServiceProvider
      */
     private function registerViewModel()
     {
-        $this->app->bind('workflow.view', function($app, $fields){
+        $this->app->bind('workflow.view', function($app){
 
             $renderer = new Services\Renderer($app->view);
 
-            return new Services\ViewModel($renderer, $fields);
+            return new Services\Workflow($renderer);
         });
     }
 

@@ -11,7 +11,7 @@ class Validator
      * @param $request
      * @throws StateException
      */
-    public function run($fields, $request)
+    public function run(array $fields, array $request)
     {
         // first we flash the input into session
         $this->flash($fields);
@@ -25,7 +25,7 @@ class Validator
      *
      * @param $fields
      */
-    private function flash($fields)
+    private function flash(array $fields)
     {
         $flash = array_where($fields, function($key, $config){
 
@@ -36,7 +36,7 @@ class Validator
         Input::flashOnly(array_keys($flash));
     }
 
-    private function validate($fields, $request)
+    private function validate(array $fields, array $request)
     {
         $rules = [];
 

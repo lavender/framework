@@ -1,6 +1,8 @@
 <?php
 namespace Lavender\Workflow\Services;
 
+use Lavender\Support\Contracts\WorkflowInterface;
+
 class Session
 {
 
@@ -11,19 +13,19 @@ class Session
 
     /**
      * Find the current state from session
-     * @param $workflow
-     * @param $states
+     * @param WorkflowInterface $workflow
      * @return mixed
+     * @internal param $states
      */
-    public function find($workflow, $states)
+    public function find(WorkflowInterface $workflow)
     {
-        if(!isset($this->resolved[$workflow])){
+        if(!isset($this->resolved[$workflow->workflow])){
 
-            $this->resolved[$workflow] = $this->findOrNew($workflow, $states);
+            $this->resolved[$workflow->workflow] = $this->findOrNew($workflow);
 
         }
 
-        return $this->resolved[$workflow];
+        return $this->resolved[$workflow->workflow];
     }
 
     /**
@@ -46,19 +48,20 @@ class Session
 
     /**
      * Find by session or create new
+     * @param WorkflowInterface $workflow
      * @return mixed
      */
-    private function findOrNew($workflow, $states)
+    private function findOrNew(WorkflowInterface $workflow)
     {
-        if($state = $this->get($workflow)){
+        if($state = $this->get($workflow->workflow)){
 
-            if(in_array($state, $states)) return $state;
+            if(in_array($state, $workflow->states)) return $state;
 
         }
 
-        $state = reset($states);
+        $state = reset($workflow->workflow);
 
-        $this->set($workflow, $state);
+        $this->set($workflow->workflow, $state);
 
         return $state;
     }
@@ -67,18 +70,18 @@ class Session
      * @param $workflow
      * @return mixed
      */
-    private function get($workflow)
+    private function get($name)
     {
-        return \Session::get("workflow.{$workflow}");
+        return \Session::get("workflow.{$name}");
     }
 
     /**
      * @param $workflow
      * @param $state
      */
-    private function set($workflow, $state)
+    private function set($name, $state)
     {
-        \Session::put("workflow.{$workflow}", $state);
+        \Session::put("workflow.{$name}", $state);
     }
 
 }

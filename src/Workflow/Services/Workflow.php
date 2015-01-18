@@ -1,10 +1,10 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Lavender\Support\Contracts\ViewModelInterface;
 use Lavender\Support\Contracts\RendererInterface;
+use Lavender\Support\Contracts\WorkflowInterface;
 
-class ViewModel implements ViewModelInterface
+class Workflow implements WorkflowInterface
 {
     /**
      * @var RendererInterface
@@ -24,8 +24,47 @@ class ViewModel implements ViewModelInterface
      */
     public function render()
     {
+        $config = \Workflow::resolve($this);
+
+        $this->states = array_keys($config);
+
+        $this->state = \Workflow::find($this);
+
+        $this->fields = $config[$this->state]['fields'];
+
+        $this->options = $config[$this->state]['options'];
+
+        \Event::fire("workflow.{$this->workflow}.{$this->state}.before", [$this]);
+
         return $this->renderer->render($this);
     }
+
+    /**
+     * @param string $state
+     * @param array $request
+     */
+    public function next($state, $request)
+    {
+        $config = \Workflow::resolve($this);
+
+        $this->states = array_keys($config);
+
+        $this->state = \Workflow::find($this);
+
+        if($this->state == $state){
+
+            // validate request
+            \Workflow::validate($config[$state]['fields'], $request);
+
+            // fire callbacks
+            \Event::fire("workflow.{$this->workflow}.{$state}.after", [$request]);
+
+            // set next state
+            \Workflow::next($this);
+
+        }
+    }
+
 
     /**
      * Add a piece of data to the form.

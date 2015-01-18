@@ -7,7 +7,6 @@ use Lavender\Support\Contracts\WorkflowContract;
 
 class Resolver
 {
-
     /**
      * The resolved workflows.
      *
@@ -27,12 +26,12 @@ class Resolver
         $this->config = $config;
     }
 
-    public function resolve($workflow)
+    public function resolve($view)
     {
-        if(!isset($this->resolved[$workflow])){
+        if(!isset($this->resolved[$view->workflow])){
 
             // get array of all workflow classes
-            $classes = $this->config[$workflow];
+            $classes = $this->config[$view->workflow];
 
             // sort into ascending priority
             ksort($classes);
@@ -41,11 +40,11 @@ class Resolver
 
             foreach($classes as $class){
 
-                $model = new $class;
+                $model = new $class();
 
                 if($model instanceof WorkflowContract){
 
-                    $states = $model->states($workflow);
+                    $states = $model->states($view->workflow);
 
                     foreach($states as $state){
 
@@ -58,7 +57,7 @@ class Resolver
                                 'fields' => [],
                                 'options' => [
                                     'method' => 'post',
-                                    'url' => URL::to($baseUrl.'/'.$workflow.'/'.$state)
+                                    'url' => URL::to($baseUrl.'/'.$view->workflow.'/'.$state)
 
                                 ],
                             ];
@@ -70,7 +69,7 @@ class Resolver
 
                             $fields = recursive_merge(
                                 $config[$state]['fields'],
-                                $model->$state()
+                                $model->$state($view)
                             );
 
 
@@ -89,7 +88,7 @@ class Resolver
 
                             $config[$state]['options'] = recursive_merge(
                                 $config[$state]['options'],
-                                $model->options($workflow, $state)
+                                $model->options($view->workflow, $state)
                             );
 
                         }
@@ -101,39 +100,10 @@ class Resolver
             }
 
 
-            $this->resolved[$workflow] = $config;
+            $this->resolved[$view->workflow] = $config;
 
         }
-        return $this->resolved[$workflow];
+        return $this->resolved[$view->workflow];
     }
-
-//
-//    public function redirect($workflow, $state)
-//    {
-//        $redirect = $this->config[$workflow][$state]['redirect'];
-//
-//        return $redirect ? Redirect::to($redirect) : Redirect::back();
-//    }
-//
-//    public function hasState($workflow, $state)
-//    {
-//        return isset($this->config[$workflow][$state]);
-//    }
-//
-//    public function defaultState($workflow)
-//    {
-//        return array_keys($this->states($workflow))[0];
-//    }
-//
-//    public function nextState($workflow, $state)
-//    {
-//        $states = array_keys($this->states($workflow));
-//
-//        $curr = array_search($state, $states);
-//
-//        if(isset($states[$curr + 1])) return $states[$curr + 1];
-//
-//        return $state;
-//    }
 
 }

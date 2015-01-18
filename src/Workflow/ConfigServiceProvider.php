@@ -98,7 +98,9 @@ class ConfigServiceProvider extends ServiceProvider
 
             try{
 
-                $response = Workflow::next($workflow, $state, Input::all(), $response);
+                $model = Workflow::make($workflow);
+
+                $model->next($state, Input::all());
 
             } catch(StateException $e){
 

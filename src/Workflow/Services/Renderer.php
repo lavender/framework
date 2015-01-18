@@ -6,7 +6,7 @@ use Illuminate\View\Factory as View;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\Support\Contracts\ArrayableInterface as Arrayable;
 use Lavender\Support\Contracts\RendererInterface;
-use Lavender\Support\Contracts\ViewModelInterface;
+use Lavender\Support\Contracts\WorkflowInterface;
 
 class Renderer implements RendererInterface
 {
@@ -30,23 +30,22 @@ class Renderer implements RendererInterface
     }
 
     /**
-     * @param ViewModelInterface $viewModel
+     * @param WorkflowInterface $workflow
      * @return mixed
      */
-    public function render(ViewModelInterface $viewModel)
+    public function render(WorkflowInterface $workflow)
     {
         try{
-            $this->workflow = $viewModel->workflow;
+            $this->workflow = $workflow->workflow;
 
-            $this->state = $viewModel->state;
+            $this->state = $workflow->state;
 
-            $options = $viewModel->options;
+            $options = $workflow->options;
 
-            $fields = $this->renderFields($viewModel->fields);
+            $fields = $this->renderFields($workflow->fields);
 
         }catch (\Exception $e){
 
-            var_dump($e->getMessage());
             var_dump($e->getMessage());
             die;
 

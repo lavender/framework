@@ -7,5 +7,5 @@ interface RendererInterface
 {
     public function __construct(Factory $factory);
 
-    public function render(ViewModelInterface $view);
+    public function render(WorkflowInterface $workflow);
 }
