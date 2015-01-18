@@ -20,24 +20,31 @@ class Workflow implements WorkflowInterface
     /**
      * Render the form
      * @return string
-     * @throws \Exception
-     * @todo handle exceptions better
      */
     public function render()
     {
-        $config = \Workflow::resolve($this);
+        try{
 
-        $this->states = array_keys($config);
+            $config = \Workflow::resolve($this);
 
-        $this->state = \Workflow::find($this);
+            $this->states = array_keys($config);
 
-        $this->fields = $config[$this->state]['fields'];
+            $this->state = \Workflow::find($this);
 
-        $this->options = $config[$this->state]['options'];
+            $this->fields = $config[$this->state]['fields'];
 
-        \Event::fire("workflow.{$this->workflow}.{$this->state}.before", [$this]);
+            $this->options = $config[$this->state]['options'];
 
-        return $this->renderer->render($this);
+            \Event::fire("workflow.{$this->workflow}.{$this->state}.before", [$this]);
+
+            return $this->renderer->render($this);
+
+        } catch(\Exception $e){
+
+            \Message::addError($e->getMessage());
+
+            return '';
+        }
     }
 
     /**
