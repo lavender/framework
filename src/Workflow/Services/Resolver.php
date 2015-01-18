@@ -4,6 +4,7 @@ namespace Lavender\Workflow\Services;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 use Lavender\Support\Contracts\WorkflowContract;
+use Lavender\Support\Contracts\WorkflowInterface;
 
 class Resolver
 {
@@ -26,12 +27,12 @@ class Resolver
         $this->config = $config;
     }
 
-    public function resolve($view)
+    public function resolve(WorkflowInterface $workflow)
     {
-        if(!isset($this->resolved[$view->workflow])){
+        if(!isset($this->resolved[$workflow->workflow])){
 
             // get array of all workflow classes
-            $classes = $this->config[$view->workflow];
+            $classes = $this->config[$workflow->workflow];
 
             // sort into ascending priority
             ksort($classes);
@@ -44,7 +45,7 @@ class Resolver
 
                 if($model instanceof WorkflowContract){
 
-                    $states = $model->states($view->workflow);
+                    $states = $model->states($workflow->workflow);
 
                     foreach($states as $state){
 
@@ -57,7 +58,7 @@ class Resolver
                                 'fields' => [],
                                 'options' => [
                                     'method' => 'post',
-                                    'url' => URL::to($baseUrl.'/'.$view->workflow.'/'.$state)
+                                    'url' => URL::to($baseUrl.'/'.$workflow->workflow.'/'.$state)
 
                                 ],
                             ];
@@ -69,7 +70,7 @@ class Resolver
 
                             $fields = recursive_merge(
                                 $config[$state]['fields'],
-                                $model->$state($view)
+                                $model->$state($workflow)
                             );
 
 
@@ -88,7 +89,7 @@ class Resolver
 
                             $config[$state]['options'] = recursive_merge(
                                 $config[$state]['options'],
-                                $model->options($view->workflow, $state)
+                                $model->options($workflow->workflow, $state)
                             );
 
                         }
@@ -100,10 +101,10 @@ class Resolver
             }
 
 
-            $this->resolved[$view->workflow] = $config;
+            $this->resolved[$workflow->workflow] = $config;
 
         }
-        return $this->resolved[$view->workflow];
+        return $this->resolved[$workflow->workflow];
     }
 
 }
