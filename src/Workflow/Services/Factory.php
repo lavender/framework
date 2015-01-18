@@ -45,11 +45,16 @@ class Factory
      * Get the evaluated view contents for the given workflow.
      *
      * @param  string $workflow
+     * @param array $params
      * @return WorkflowInterface
      */
-    public function make($workflow)
+    public function make($workflow, $params = [])
     {
-        return App::make('workflow.view')->with('workflow', $workflow);
+        $model = App::make('workflow.model')->with('workflow', $workflow);
+
+        foreach($params as $k => $v) $model->with($k, $v);
+
+        return $model;
     }
 
     /**

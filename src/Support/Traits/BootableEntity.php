@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Entity\Traits;
+namespace Lavender\Support\Traits;
 
 trait BootableEntity
 {

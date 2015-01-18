@@ -8,8 +8,6 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 class Account extends Entity implements UserInterface, RemindableInterface
 {
 
-    public $timestamps = true;
-
     /**
      * Overwrites the original save method in order to perform
      * validation before actually saving the object.

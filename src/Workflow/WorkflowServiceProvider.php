@@ -22,7 +22,7 @@ class WorkflowServiceProvider extends ServiceProvider
     {
         return [
             'workflow.factory',
-            'workflow.view'
+            'workflow.model'
         ];
     }
 
@@ -37,7 +37,7 @@ class WorkflowServiceProvider extends ServiceProvider
         $this->registerFactory();
 
         // view model is built by the factory and rendered
-        $this->registerViewModel();
+        $this->registerModel();
     }
 
 
@@ -63,9 +63,9 @@ class WorkflowServiceProvider extends ServiceProvider
     /**
      * Register the workflow view model
      */
-    private function registerViewModel()
+    private function registerModel()
     {
-        $this->app->bind('workflow.view', function($app){
+        $this->app->bind('workflow.model', function($app){
 
             $renderer = new Services\Renderer($app->view);
 

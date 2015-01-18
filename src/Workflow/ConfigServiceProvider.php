@@ -2,6 +2,7 @@
 namespace Lavender\Workflow;
 
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,13 @@ class ConfigServiceProvider extends ServiceProvider
 
             $this->registerRoutes();
 
+        });
+
+        Blade::extend(function($view, $compiler)
+        {
+            $pattern = $compiler->createMatcher('workflow');
+
+            return preg_replace($pattern, '$1<?php echo Workflow::make$2; ?>', $view);
         });
 
     }

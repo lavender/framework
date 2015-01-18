@@ -106,6 +106,10 @@ class Workflow implements WorkflowInterface
         throw new \BadMethodCallException("Method [$method] does not exist.");
     }
 
+    public function __get($get)
+    {
+        return null;
+    }
 
     /**
      * Get the string contents of the form.
