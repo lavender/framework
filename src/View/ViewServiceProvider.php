@@ -22,7 +22,6 @@ class ViewServiceProvider extends ServiceProvider
     {
         return [
             'url',
-            'html.table',
             'asset.publisher',
             'layout.injector',
             'menu.builder',
@@ -37,8 +36,6 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerHtmlTable();
-
         $this->registerMessageBag();
 
         $this->registerMenuBuilder();
@@ -48,34 +45,6 @@ class ViewServiceProvider extends ServiceProvider
         $this->registerUrlGenerator();
 
         $this->registerLayoutInjector();
-    }
-
-
-    private function registerHtmlTable()
-    {
-        $this->app->bindShared('html.table', function ($app){
-
-            return new Html\Table;
-
-        });
-
-        $this->app->bindShared('html.table.entity', function ($app){
-
-            return app('Lavender\View\Html\Table\Entity');
-
-        });
-
-        $this->app->bindShared('html.table.config', function ($app){
-
-            return app('Lavender\View\Html\Table\Config');
-
-        });
-
-        $this->app->bindShared('html.table.basic', function ($app){
-
-            return app('Lavender\View\Html\Table\Basic');
-
-        });
     }
 
 

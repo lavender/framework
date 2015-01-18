@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\View\Html\Table;
+namespace Lavender\Html\Table\Type;
 
 use Lavender\Entity\Database\Repository;
 

@@ -1,7 +1,7 @@
 <?php
-namespace Lavender\View\Html;
+namespace Lavender\Html\Table;
 
-class Table
+class Builder
 {
     public function make($table, $type = 'basic')
     {

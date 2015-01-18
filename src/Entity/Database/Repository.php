@@ -41,25 +41,6 @@ class Repository
         return $this->attributes;
     }
 
-    //todo move to event listener in backend
-    /*private function attributeRenderer(array $attributes)
-    {
-        foreach($attributes as $attribute => $config){
-
-            if(isset($config['backend.table'])){
-
-                if(!$config['backend.table']){
-
-                    unset($attributes[$attribute]);
-
-                }
-
-            }
-
-        }
-
-        return $attributes;
-    }*/
 
     public function with($key, $value)
     {

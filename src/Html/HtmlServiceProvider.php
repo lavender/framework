@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\View;
+namespace Lavender\Html;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +30,8 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->registerHtmlTable();
+
         $this->registerHtmlBuilder();
     }
 
@@ -43,6 +45,34 @@ class HtmlServiceProvider extends ServiceProvider
     {
         $this->app->bindShared('html', function ($app){
             return new Services\HtmlBuilder($app['url']);
+        });
+    }
+
+
+    private function registerHtmlTable()
+    {
+        $this->app->bindShared('html.table', function ($app){
+
+            return new Table\Builder;
+
+        });
+
+        $this->app->bindShared('html.table.entity', function ($app){
+
+            return app('Lavender\Html\Table\Type\Entity');
+
+        });
+
+        $this->app->bindShared('html.table.config', function ($app){
+
+            return app('Lavender\Html\Table\Type\Config');
+
+        });
+
+        $this->app->bindShared('html.table.basic', function ($app){
+
+            return app('Lavender\Html\Table\Type\Basic');
+
         });
     }
 
