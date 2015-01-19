@@ -165,9 +165,11 @@ class MigrateEntity extends Command
     protected function buildTable($entity, $config)
     {
         // Prepare pivot tables and one-to-* columns
-        $this->prepareRelationships($entity->getEntity(), $config);
+        $config = $this->prepareRelationships($entity->getEntity(), $config);
 
-        \Event::fire('entity.creator.prepare', [$config]);
+        $args[] = &$config;
+
+        \Event::fire('entity.creator.prepare', $args);
 
         // Append attribute columns
         return $this->addAttributes($entity->getTable(), $config['attributes']);
@@ -183,7 +185,7 @@ class MigrateEntity extends Command
         }
     }
 
-    protected function prepareRelationships($entity, &$config)
+    protected function prepareRelationships($entity, $config)
     {
         $relationships = $this->prepareAttributes(
             $config['relationships'],
@@ -220,6 +222,8 @@ class MigrateEntity extends Command
                 ]);
             }
         }
+
+        return $config;
     }
 
     protected function addAttributes($table, $attributes)

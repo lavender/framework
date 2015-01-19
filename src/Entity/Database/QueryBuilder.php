@@ -58,7 +58,11 @@ class QueryBuilder extends Builder
      */
     public function insertGetId(array $values, $sequence = null)
     {
-        \Event::fire('entity.query.insert', [$this, $values]);
+        $args[] = $this;
+
+        $args[] = &$values;
+
+        \Event::fire('entity.query.insert', $args);
 
         return parent::insertGetid($values, $sequence);
     }
