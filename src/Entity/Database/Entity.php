@@ -33,23 +33,7 @@ class Entity extends Eloquent implements EntityInterface
     {
         $this->config = \Config::get("entity.{$this->entity}", []);
 
-        var_dump($this->config);
-        die;
-
-//        $attributes = isset($config['attributes']) ? $config['attributes'] : [];
-//
-//        $relationships = isset($config['relationships']) ? $config['relationships'] : [];
-//
-//        foreach($attributes as &$attribute) merge_defaults($attribute, 'attribute');
-//
-//        foreach($relationships as &$relationship) merge_defaults($relationship, 'relationships');
-//
-//        $this->config = [
-//            'attributes' => $attributes,
-//            'relationships' => $relationships,
-//        ];
-
-        $this->fillable = array_keys($attributes);
+        $this->fillable = array_keys($this->config['attributes']);
     }
 
     /**
