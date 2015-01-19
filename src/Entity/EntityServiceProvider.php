@@ -76,9 +76,7 @@ class EntityServiceProvider extends ServiceProvider
     {
         $entities = $this->app->config['entity'];
 
-        foreach($entities as $e => &$config){
-
-            merge_defaults($config, 'entity');
+        foreach($entities as $e => $config){
 
             $this->app->bind("entity.$e", function ($app, $default) use ($config){
 
@@ -86,14 +84,34 @@ class EntityServiceProvider extends ServiceProvider
 
             });
         }
-
-        $this->app->config['entity'] = $entities;
     }
 
     protected function registerConfig()
     {
         // merge all entity.php config files
         $this->app['lavender.config']->merge(['entity']);
+
+        $merge_entity = [
+            'config' => 'entity',
+            'default' => 'entity',
+            'depth' => 1
+        ];
+
+        $merge_attributes = [
+            'config' => 'entity',
+            'default' => 'attribute',
+            'index' => 'attributes',
+            'depth' => 3
+        ];
+
+        $merge_relationships = [
+            'config' => 'entity',
+            'default' => 'relationship',
+            'index' => 'relationships',
+            'depth' => 3
+        ];
+
+        $this->app['lavender.config.defaults']->merge([$merge_entity, $merge_attributes, $merge_relationships]);
     }
 
     /**
