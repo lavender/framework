@@ -22,7 +22,6 @@ class ConfigServiceProvider extends ServiceProvider
     {
         return [
             'lavender.config',
-            'lavender.theme.config',
             'lavender.config.defaults'
         ];
     }
@@ -52,10 +51,7 @@ class ConfigServiceProvider extends ServiceProvider
 
             $this->mergeConfig();
 
-            $this->app->theme->booted(function($theme){
-
-                $this->mergeThemeConfig($theme);
-            });
+            $this->mergeDefaults();
 
         });
     }
@@ -105,26 +101,8 @@ class ConfigServiceProvider extends ServiceProvider
         }
     }
 
-    public function mergeThemeConfig($theme)
+    public function mergeDefaults()
     {
-        // Cascade various configuration types based on current theme fallbacks.
-        foreach($this->app['lavender.theme.config']->getMerged() as $type){
-
-            $merged = [];
-
-            $config = $this->app->config[$type];
-
-            foreach($theme->fallbacks as $theme_code){
-
-                if(isset($config[$theme_code])){
-
-                    $merged = recursive_merge($config[$theme_code], $merged);
-                }
-            }
-
-            $this->app->config[$type] = $merged;
-        }
-
         // Now that theme config has been merged, merge predefined defaults.
         foreach($this->app['lavender.config.defaults']->getMerged() as $default){
 
