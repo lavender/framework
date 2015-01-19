@@ -18,7 +18,7 @@ return [
         'nullable' => true,
         'unique'   => false,
         'before_save' => null,
-        'renderer' => null,
+        'frontend.renderer' => null,
 
         // todo support this stuff
         'length'   => null,

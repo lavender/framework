@@ -31,10 +31,16 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function reload()
     {
-        $this->config = array_merge(
-            ['attributes' => [],'relationships' => []],
-            \Config::get("entity.{$this->entity}", [])
-        );
+        $config = \Config::get("entity.{$this->entity}", []);
+
+        $attributes = isset($config['attributes']) ? $config['attributes'] : [];
+
+        $relationships = isset($config['relationships']) ? $config['relationships'] : [];
+
+
+
+        $this->config = [];
+
         $this->fillable = array_keys($this->config['attributes']);
     }
 
@@ -45,7 +51,7 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function backendValue($key)
     {
-        return $this->renderer('backend', $key)
+        return $this->renderer($key, 'backend')
             ->render($this, $key);
     }
 
@@ -56,7 +62,7 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function frontendValue($key)
     {
-        return $this->renderer('frontend', $key)
+        return $this->renderer($key, 'frontend')
             ->render($this, $key);
     }
 
@@ -64,9 +70,10 @@ class Entity extends Eloquent implements EntityInterface
      * Load the attributes renderer if available
      * else use default renderer (returns raw value)
      * @param $key
+     * @param $type
      * @return mixed
      */
-    protected function renderer($type, $key)
+    protected function renderer($key, $type)
     {
         if(isset($this->config['attributes'][$key])){
 
