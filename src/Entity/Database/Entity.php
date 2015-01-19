@@ -71,7 +71,7 @@ class Entity extends Eloquent implements EntityInterface
 
             $attribute = $this->config['attributes'][$key];
 
-            if(isset($attribute[$type . '.renderer'])){
+            if($attribute[$type . '.renderer']){
 
                 return new $attribute[$type . '.renderer'];
             }
