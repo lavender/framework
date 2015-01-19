@@ -123,7 +123,7 @@ class MigrateEntity extends Command
 
                 if(isset($config[$entity])){
 
-                    $this->updateEntity(entity($entity), $this->config[$entity]);
+                    $this->updateEntity(entity($entity), $config[$entity]);
                 }
             }
         } else{
