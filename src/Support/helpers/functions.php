@@ -69,7 +69,7 @@ if ( ! function_exists('sort_children'))
         $pos = 1;
 
         // decorate array
-        foreach($array as &$v) $v = [$v, $pos++];
+        foreach($array as $k => $v) $array[$k] = [$v, $pos++];
 
         // sort array
         uasort($array, function ($a, $b) use ($key){
@@ -84,7 +84,7 @@ if ( ! function_exists('sort_children'))
         });
 
         // un-decorate array
-        foreach($array as &$v) $v = $v[0];
+        foreach($array as $k => $v) $array[$k] = $v[0];
     }
 }
 
