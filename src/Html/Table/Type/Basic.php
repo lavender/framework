@@ -1,6 +1,8 @@
 <?php
 namespace Lavender\Html\Table\Type;
 
+use Lavender\Support\Facades\Message;
+
 class Basic
 {
 
@@ -18,12 +20,9 @@ class Basic
     public function render()
     {
         if(!isset($this->table)){
-            //todo can not throw exception in view
-            var_dump('Invalid instantiation of '.get_class($this));
-            die;
+            Message::addError('Invalid instantiation of '.get_class($this));
+            return '';
         }
-
-        \Event::fire('html.table.'.$this->table, [$this]);
 
         return \View::make($this->layout)
             ->with('columns', $this->columns)

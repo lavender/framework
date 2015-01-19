@@ -7,8 +7,6 @@ class Entity extends Basic
 {
     public $layout = 'layouts.elements.table.entity';
 
-    public $attributes = [];
-
     /**
      * @var Repository
      */
