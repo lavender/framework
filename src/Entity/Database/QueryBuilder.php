@@ -44,7 +44,7 @@ class QueryBuilder extends Builder
      */
     protected function runSelect()
     {
-        \Event::fire('entity.query.select', [$this]);
+        \Event::fire('entity.query.select', $this);
 
         return parent::runSelect();
     }

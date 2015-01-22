@@ -40,6 +40,16 @@ interface EntityInterface
     public function getEntity();
 
     /**
+     * @return array keys
+     */
+    public function getRelationships();
+
+    /**
+     * @return array keys
+     */
+    public function getAttributes();
+
+    /**
      * Get the model's config
      *
      * @return string
