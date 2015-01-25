@@ -215,7 +215,7 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function getRelationships()
     {
-        return array_keys($this->config['relationships']);
+        return $this->config['relationships'];
     }
 
     /**

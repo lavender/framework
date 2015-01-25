@@ -5,8 +5,6 @@ abstract class Shared
 {
     protected $_data = [];
 
-    abstract function __construct($optional = null);
-
     public function unsetData()
     {
         $this->_data = [];
@@ -16,14 +14,14 @@ abstract class Shared
     {
         foreach($arr as $k => $v){
 
-            $this->_data[$k] = $callback instanceof \Closure ? $callback($k) : $v;
+            $this->_data[$k] = $callback instanceof \Closure ? $callback($k, $v) : $v;
 
         }
     }
 
     public function __get($key)
     {
-        return $this->_data[$key];
+        return isset($this->_data[$key]) ? $this->_data[$key] : null;
     }
 
     public function __set($key, $value)
