@@ -10,13 +10,13 @@ abstract class SharedEntity extends Shared
     {
         $this->unsetData();
 
-        $relationships = $entity->getRelationships();
+        $this->addData(get_object_vars($entity));
 
-        $attributes = $entity->getAttributes();
+        $this->addData($entity->getAttributes());
 
-        foreach($relationships as $r) $this->$r = $entity->$r;
-
-        foreach($attributes as $a => $attr) $this->$a = $attr;
+        $this->addData($entity->getRelationships(), function($key) use ($entity){
+            return $entity->$key;
+        });
     }
 
 }

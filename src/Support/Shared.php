@@ -12,6 +12,15 @@ abstract class Shared
         $this->_data = [];
     }
 
+    public function addData($arr, $callback = null)
+    {
+        foreach($arr as $k => $v){
+
+            $this->_data[$k] = $callback instanceof \Closure ? $callback($k) : $v;
+
+        }
+    }
+
     public function __get($key)
     {
         return $this->_data[$key];
