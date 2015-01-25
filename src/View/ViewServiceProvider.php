@@ -25,6 +25,7 @@ class ViewServiceProvider extends ServiceProvider
             'asset.publisher',
             'layout.injector',
             'menu.builder',
+            'page.router',
             'message.service',
         ];
     }
@@ -41,6 +42,8 @@ class ViewServiceProvider extends ServiceProvider
         $this->registerMenuBuilder();
 
         $this->registerAssetPublisher();
+
+        $this->registerPageRouter();
 
         $this->registerUrlGenerator();
 
@@ -63,6 +66,16 @@ class ViewServiceProvider extends ServiceProvider
         $this->app->bindShared('menu.builder', function ($app){
 
             return new Services\MenuBuilder;
+
+        });
+    }
+
+
+    private function registerPageRouter()
+    {
+        $this->app->bindShared('page.router', function ($app){
+
+            return new Services\PageRouter();
 
         });
     }
