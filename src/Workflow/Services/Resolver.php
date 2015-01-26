@@ -89,7 +89,7 @@ class Resolver
 
                             $config[$state]['options'] = recursive_merge(
                                 $config[$state]['options'],
-                                $model->options($workflow->workflow, $state)
+                                $model->options($workflow->workflow, $state, $workflow)
                             );
 
                         }

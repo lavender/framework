@@ -6,6 +6,6 @@ interface WorkflowContract
 
     public function states($workflow);
 
-    public function options($workflow, $state);
+    public function options($workflow, $state, $view);
 
 }

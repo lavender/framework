@@ -164,15 +164,6 @@ class Renderer implements RendererInterface
         return $rendered;
     }
 
-    protected function handleBefore($filters, &$transport)
-    {
-        foreach($filters as $before => $filter){
-
-            if($model = new $filter['class']) $model->handle($transport);
-
-        }
-    }
-
     protected function hasError($name = null)
     {
         if($errors = \Session::get('errors')){

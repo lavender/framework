@@ -72,25 +72,6 @@ class ConfigServiceProvider extends ServiceProvider
         $this->app['lavender.config']->merge(['workflow']);
     }
 
-    public function registerListeners()
-    {
-        foreach($this->app->config['workflow'] as $workflow => $states){
-
-            foreach($states as $state => $config){
-
-                $this->app->events->listen("workflow.{$workflow}.{$state}", function($view) use ($config){
-
-                    foreach($config['before'] as $before => $filter){
-
-                        if($model = new $filter['class']) $model->handle($view);
-
-                    }
-                });
-
-            }
-        }
-    }
-
     /**
      * Register the workflow post requests
      */
@@ -129,6 +110,38 @@ class ConfigServiceProvider extends ServiceProvider
 
             return $response;
 
+        });
+
+        Route::post($baseUrl.'/{workflow}/{state}/{entity}/{id}', function ($workflow, $state, $entity, $id){
+            $errors = null;
+
+            try{
+
+                $model = Workflow::make($workflow)
+                    ->with('entity', entity($entity)->find($id));
+
+                $model->next($state, Input::all());
+
+            } catch(StateException $e){
+
+                $errors = $e->getErrors()->messages();
+
+            } catch(QueryException $e){
+
+                //todo log exception error
+                \Message::addError("Database error.");
+
+            } catch(\Exception $e){
+
+                \Message::addError($e->getMessage());
+
+            }
+
+            $response = Workflow::response();
+
+            if($errors) $response->withErrors($errors, $workflow . '_' . $state);
+
+            return $response;
         });
     }
 
