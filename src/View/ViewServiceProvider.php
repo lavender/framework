@@ -25,7 +25,6 @@ class ViewServiceProvider extends ServiceProvider
             'asset.publisher',
             'layout.injector',
             'page.router',
-            'message.service',
         ];
     }
 
@@ -36,8 +35,6 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerMessageBag();
-
         $this->registerAssetPublisher();
 
         $this->registerPageRouter();
@@ -45,16 +42,6 @@ class ViewServiceProvider extends ServiceProvider
         $this->registerUrlGenerator();
 
         $this->registerLayoutInjector();
-    }
-
-
-    private function registerMessageBag()
-    {
-        $this->app->bindShared('message.service', function ($app){
-
-            return new Services\MessageBag;
-
-        });
     }
 
 

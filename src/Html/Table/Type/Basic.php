@@ -19,10 +19,8 @@ class Basic
      */
     public function render()
     {
-        if(!isset($this->table)){
-            Message::addError('Invalid instantiation of '.get_class($this));
-            return '';
-        }
+        //todo log exception
+        if(!isset($this->table)) return '';
 
         return \View::make($this->layout)
             ->with('columns', $this->columns)

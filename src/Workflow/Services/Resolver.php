@@ -21,6 +21,28 @@ class Resolver
      */
     protected $config;
 
+    protected $field_defaults = [
+        // field label (optional)
+        'label' => null,
+        'label_options' => [],
+
+        // applies to all fields
+        'type' => 'text',
+        'position' => 0,
+        'name' => null,
+        'value' => null,
+        'options' => ['id' => null],
+        'validate' => [],
+        'comment' => null,
+        'flash' => true,
+
+        //applies to select fields
+        'values' => [],
+
+        //applies to checkbox & radio fields
+        'checked' => [],
+    ];
+
 
     public function __construct($config)
     {
@@ -65,28 +87,32 @@ class Resolver
 
                         }
 
-                        // collect fields passed to Renderer
                         if(method_exists($model, $state)){
 
+                            // collect fields
                             $fields = recursive_merge(
                                 $config[$state]['fields'],
                                 $model->$state($workflow)
                             );
 
+                            // merge defaults
+                            foreach($fields as $key => $data){
 
-                            array_walk_depth($fields, 1, function(&$data){
+                                $fields[$key] = recursive_merge(
+                                    $this->field_defaults,
+                                    $data
+                                );
 
-                                merge_defaults($data, 'workflow');
+                            }
 
-                            });
-
+                            // set fields for state
                             $config[$state]['fields'] = $fields;
 
                         }
 
-                        // collect the options passed to Form:open()
                         if(method_exists($model, 'options')){
 
+                            // collect the options; options are passed to Form:open()
                             $config[$state]['options'] = recursive_merge(
                                 $config[$state]['options'],
                                 $model->options($workflow->workflow, $state, $workflow)

@@ -32,8 +32,7 @@ class Entity extends Basic
 
         }catch (\Exception $e){
 
-            //todo log error
-            Message::addError($e->getMessage());
+            //todo log exception
 
             return '';
 

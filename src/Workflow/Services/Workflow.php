@@ -23,7 +23,7 @@ class Workflow implements WorkflowInterface
      */
     public function render()
     {
-        try{
+//        try{
 
             $config = \Workflow::resolve($this);
 
@@ -39,12 +39,11 @@ class Workflow implements WorkflowInterface
 
             return $this->renderer->render($this);
 
-        } catch(\Exception $e){
-
-            \Message::addError($e->getMessage());
-
-            return '';
-        }
+//        } catch(\Exception $e){
+//
+//            // todo log exception
+//            return $e->getMessage();
+//        }
     }
 
     /**

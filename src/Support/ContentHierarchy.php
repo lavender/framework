@@ -2,7 +2,6 @@
 namespace Lavender\Support;
 
 use Illuminate\Support\Facades\View;
-use Lavender\Support\Facades\Message;
 
 abstract class ContentHierarchy
 {
@@ -97,23 +96,19 @@ abstract class ContentHierarchy
 
     public function render()
     {
-        $view = '';
-
         try{
 
             if(!isset($this->layout)) throw new \Exception("Layout not found.");
 
-            $view = View::make($this->layout)
+            return View::make($this->layout)
                 ->with('items', $this->all())->render();
 
         } catch (\Exception $e){
 
-            //todo log getTraceAsString
-            Message::addError("[ContentHierarchy] ".$e->getMessage());
+            // todo log exception
+            return $e->getMessage();
 
         }
-
-        return $view;
     }
 
 

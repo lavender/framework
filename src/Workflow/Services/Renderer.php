@@ -35,7 +35,7 @@ class Renderer implements RendererInterface
      */
     public function render(WorkflowInterface $workflow)
     {
-        try{
+//        try{
             $this->workflow = $workflow->workflow;
 
             $this->state = $workflow->state;
@@ -44,12 +44,12 @@ class Renderer implements RendererInterface
 
             $fields = $this->renderFields($workflow->fields);
 
-        }catch (\Exception $e){
-
-            var_dump($e->getMessage());
-            die;
-
-        }
+//        }catch (\Exception $e){
+//
+//            // todo log exception
+//            return $e->getMessage();
+//
+//        }
         return $this->view->make($this->container)
             ->with('options', $options)
             ->with('fields', $fields)
@@ -58,9 +58,6 @@ class Renderer implements RendererInterface
 
     protected function renderFields($fields)
     {
-        // todo something with workflow/success
-        //\Message::addSuccess("win");
-
         $rendered = [];
 
         // sort fields by 'position'

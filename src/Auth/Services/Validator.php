@@ -36,14 +36,10 @@ class Validator
 
         if($ruleset == 'create' && $exists){
 
-            \Message::addError(\Lang::get('account.alerts.duplicated_credentials'));
-
             return false;
         }
 
         if($ruleset == 'update' && !$exists){
-
-            \Message::addError(\Lang::get('account.alerts.does_not_exist'));
 
             return false;
         }

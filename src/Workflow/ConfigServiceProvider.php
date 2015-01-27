@@ -61,7 +61,6 @@ class ConfigServiceProvider extends ServiceProvider
 
             return preg_replace($pattern, '$1<?php echo Workflow::make$2; ?>', $view);
         });
-
     }
 
     /**
@@ -74,6 +73,7 @@ class ConfigServiceProvider extends ServiceProvider
 
     /**
      * Register the workflow post requests
+     * todo better routing
      */
     private function registerRoutes()
     {
@@ -95,12 +95,13 @@ class ConfigServiceProvider extends ServiceProvider
 
             } catch(QueryException $e){
 
-                //todo log exception error
-                \Message::addError("Database error.");
+                //todo log exception
+                $errors = "Database error.";
 
             } catch(\Exception $e){
 
-                \Message::addError($e->getMessage());
+                //todo log exception
+                $errors = $e->getMessage();
 
             }
 
@@ -128,12 +129,13 @@ class ConfigServiceProvider extends ServiceProvider
 
             } catch(QueryException $e){
 
-                //todo log exception error
-                \Message::addError("Database error.");
+                //todo log exception
+                $errors = "Database error.";
 
             } catch(\Exception $e){
 
-                \Message::addError($e->getMessage());
+                //todo log exception
+                $errors = $e->getMessage();
 
             }
 
