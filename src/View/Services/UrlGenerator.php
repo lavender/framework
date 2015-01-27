@@ -31,7 +31,7 @@ class UrlGenerator extends CoreUrlGenerator
      * @param $asset
      * @return string
      */
-    function fallback($asset)
+    public function fallback($asset)
     {
         $asset_path = $asset;
 
