@@ -63,7 +63,8 @@ class Factory
 
         $this->config->params($params);
 
-        return $this;
+        // return a clone so Factory can be reused
+        return clone $this;
     }
 
     public function render()

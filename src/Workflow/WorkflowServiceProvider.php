@@ -42,7 +42,7 @@ class WorkflowServiceProvider extends ServiceProvider
      */
     private function registerFactory()
     {
-        $this->app->bind('workflow.factory', function ($app){
+        $this->app->bindShared('workflow.factory', function ($app){
 
             $session = new Services\Session();
 
