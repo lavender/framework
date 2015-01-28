@@ -5,52 +5,39 @@ use Illuminate\Support\Facades\Form;
 use Illuminate\View\Factory as View;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\Support\Contracts\ArrayableInterface as Arrayable;
-use Lavender\Support\Contracts\RendererInterface;
-use Lavender\Support\Contracts\WorkflowInterface;
 
-class Renderer implements RendererInterface
+class Renderer
 {
-    /**
-     * @var string form container template
-     */
-    protected $container = 'workflow.form.container';
-
     /**
      * @var View
      */
     protected $view;
 
+    /**
+     * @var string
+     */
+    protected $workflow;
 
     /**
-     * @param View $view
+     * @var string
      */
+    protected $state;
+
+
     public function __construct(View $view)
     {
         $this->view = $view;
     }
 
-    /**
-     * @param WorkflowInterface $workflow
-     * @return mixed
-     */
-    public function render(WorkflowInterface $workflow)
+    public function render($workflow, $state, $container, $options, $fields)
     {
-//        try{
-            $this->workflow = $workflow->workflow;
+        $this->workflow = $workflow;
 
-            $this->state = $workflow->state;
+        $this->state = $state;
 
-            $options = $workflow->options;
+        $fields = $this->renderFields($fields);
 
-            $fields = $this->renderFields($workflow->fields);
-
-//        }catch (\Exception $e){
-//
-//            // todo log exception
-//            return $e->getMessage();
-//
-//        }
-        return $this->view->make($this->container)
+        return $this->view->make($container)
             ->with('options', $options)
             ->with('fields', $fields)
             ->render();
@@ -161,7 +148,6 @@ class Renderer implements RendererInterface
         return $rendered;
     }
 
-    // todo abstract
     // todo use consumer error handling
     protected function hasError($name = null)
     {

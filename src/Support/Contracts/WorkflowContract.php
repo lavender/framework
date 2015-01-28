@@ -4,8 +4,10 @@ namespace Lavender\Support\Contracts;
 interface WorkflowContract
 {
 
-    public function states($workflow);
+    public function states();
 
-    public function options($workflow, $state, $view);
+    public function options($state);
+
+    public function template($state);
 
 }

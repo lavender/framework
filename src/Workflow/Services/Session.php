@@ -1,87 +1,69 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Lavender\Support\Contracts\WorkflowInterface;
+use Illuminate\Support\Facades\Input;
 
 class Session
 {
-
-    /**
-     * @var array
-     */
     protected $resolved = [];
 
     /**
      * Find the current state from session
-     * @param WorkflowInterface $workflow
-     * @return mixed
-     * @internal param $states
+     * @param string $workflow
+     * @param array $states
+     * @return array
      */
-    public function find(WorkflowInterface $workflow)
+    public function find($workflow, array $states)
     {
-        if(!isset($this->resolved[$workflow->workflow])){
+        if(!isset($this->resolved[$workflow])){
 
-            $this->resolved[$workflow->workflow] = $this->findOrNew($workflow);
+            if(!$state = $this->get($workflow)){
+
+                $state = reset($states);
+
+                $this->set($workflow, $state);
+
+            }
+
+            $this->resolved[$workflow] = $state;
 
         }
 
-        return $this->resolved[$workflow->workflow];
+        return $this->resolved[$workflow];
     }
 
     /**
-     * Find the next state and set it in session
-     * @param $workflow
-     * @param $state
-     * @param $states
+     * Flash only fields where flash = true
+     *
+     * @param array $fields
+     */
+    public function flash(array $fields)
+    {
+        $flash = array_where($fields, function($key, $config){
+
+            return $config['flash'];
+
+        });
+
+        Input::flashOnly(array_keys($flash));
+    }
+
+    /**
+     * @param string $workflow
      * @return mixed
      */
-    public function next($workflow, $state, $states)
+    protected function get($workflow)
     {
-        $curr = array_search($state, $states);
-
-        if(isset($states[$curr + 1])) $state = $states[$curr + 1];
-
-        $this->set($workflow, $state);
-
-        return $state;
+        return \Session::get("workflow.{$workflow}");
     }
 
     /**
-     * Find by session or create new
-     * @param WorkflowInterface $workflow
-     * @return mixed
+     * @param string $workflow
+     * @param string $state
      */
-    private function findOrNew(WorkflowInterface $workflow)
+    public function set($workflow, $state)
     {
-        if($state = $this->get($workflow->workflow)){
-
-            if(in_array($state, $workflow->states)) return $state;
-
-        }
-
-        $state = reset($workflow->states);
-
-        $this->set($workflow->workflow, $state);
-
-        return $state;
-    }
-
-    /**
-     * @param $name
-     * @return mixed
-     */
-    private function get($name)
-    {
-        return \Session::get("workflow.{$name}");
-    }
-
-    /**
-     * @param $name
-     * @param $state
-     */
-    private function set($name, $state)
-    {
-        \Session::put("workflow.{$name}", $state);
+        \Session::put("workflow.{$workflow}", $state);
     }
 
 }

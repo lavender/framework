@@ -1,16 +1,13 @@
 <?php
 namespace Lavender\Workflow\Services;
 
-use Illuminate\Support\Facades\App;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Redirect;
-use Lavender\Support\Contracts\WorkflowInterface;
+use Lavender\Workflow\Exceptions\StateException;
 
 class Factory
 {
-    /**
-     * @var \Illuminate\Http\RedirectResponse
-     */
-    protected $response;
 
     /**
      * @var Session
@@ -18,9 +15,9 @@ class Factory
     protected $session;
 
     /**
-     * @var Resolver
+     * @var Config
      */
-    protected $resolver;
+    protected $config;
 
     /**
      * @var Validator
@@ -28,87 +25,155 @@ class Factory
     protected $validator;
 
     /**
-     * @param Session $session
-     * @param Resolver $resolver
-     * @param Validator $validator
+     * @var Renderer
      */
-    public function __construct(Session $session, Resolver $resolver, Validator $validator)
+    protected $renderer;
+
+    /**
+     * @var string workflow name
+     */
+    protected $workflow;
+
+    /**
+     * @param Session $session
+     * @param Config $config
+     * @param Validator $validator
+     * @param Renderer $renderer
+     */
+    public function __construct(Session $session, Config $config, Validator $validator, Renderer $renderer)
     {
         $this->session  = $session;
 
-        $this->resolver  = $resolver;
+        $this->config  = $config;
 
         $this->validator  = $validator;
+
+        $this->renderer  = $renderer;
     }
 
     /**
      * Get the evaluated view contents for the given workflow.
      *
      * @param  string $workflow
-     * @param array $params
-     * @return WorkflowInterface
+     * @return $this
      */
     public function make($workflow, $params = [])
     {
-        $model = App::make('workflow.model')->with('workflow', $workflow);
+        $this->workflow = $workflow;
 
-        foreach($params as $k => $v) $model->with($k, $v);
+        $this->config->params($params);
 
-        return $model;
+        return $this;
     }
 
-    /**
-     * @param WorkflowInterface $workflow
-     * @return mixed
-     */
-    public function resolve(WorkflowInterface $workflow)
+    public function post($state, $request, $errors = null)
     {
-        return $this->resolver->resolve($workflow);
+        $response = Redirect::back();
+
+        try{
+
+            $workflow = $this->workflow;
+
+            if($state == $this->getState()){
+
+                // load fields
+                $fields = $this->config->get($workflow, $state, 'fields', []);
+
+                // flash input into session
+                $this->session->flash($fields);
+
+                // validate request
+                $this->validator->run($fields, $request);
+
+                // fire callbacks
+                Event::fire("workflow.{$workflow}.{$state}.after", [$request]);
+
+                // all states
+                $states = $this->config->get($workflow, null, 'states');
+
+                // current state index
+                $curr = array_search($state, $states);
+
+                // if next index available, set new state
+                if(isset($states[$curr + 1])){
+
+                    $state = $states[$curr + 1];
+
+                    $this->session->set($workflow, $state);
+
+                } else{
+
+                    // end of workflow, remain on last step
+
+                }
+
+                //todo return state response
+                //$response = Redirect::back();
+
+            }
+
+        } catch(StateException $e){
+
+            $errors = $e->getErrors()->messages();
+
+        } catch(QueryException $e){
+
+            //todo log exception
+            $errors = ["Database error."];
+
+        } catch(\Exception $e){
+
+            //todo log exception
+            $errors = [$e->getMessage()];
+
+        }
+
+        if($errors) $response->withErrors($errors, $workflow . '_' . $state);
+
+        return $response;
     }
 
-    /**
-     * @param WorkflowInterface $workflow
-     * @return mixed
-     */
-    public function find(WorkflowInterface $workflow)
+    protected function getState()
     {
-        return $this->session->find($workflow);
+        // all states
+        $states = $this->config->get($this->workflow, null, 'states');
+
+        // current state
+        $state = $this->session->find($this->workflow, $states);
+
+        // current state index
+        $curr = array_search($state, $states);
+
+        // unknown state
+        if($curr === false) return false;
+
+        return $state;
     }
 
-    /**
-     * @param $fields
-     * @param $request
-     */
-    public function validate(array $fields, array $request)
+
+    public function __toString()
     {
-        return $this->validator->run($fields, $request);
+        try{
+
+            if(isset($this->workflow) && $state = $this->getState()){
+
+                $template = $this->config->get($this->workflow, $state, 'template');
+
+                $options = $this->config->get($this->workflow, $state, 'options', []);
+
+                $fields = $this->config->get($this->workflow, $state, 'fields', []);
+
+                return $this->renderer->render($this->workflow, $state, $template, $options, $fields);
+            }
+
+        } catch(\Exception $e){
+
+            // todo log exception
+            return "Error rendering workflow: ".$e->getMessage()."<pre>".$e->getTraceAsString();
+
+        }
+
+        return '';
     }
-
-    public function next(WorkflowInterface $workflow)
-    {
-        return $this->session->next(
-            $workflow->workflow,
-            $workflow->state,
-            $workflow->states
-        );
-    }
-
-    public function redirect($redirect)
-    {
-        if(is_string($redirect)) $redirect = Redirect::to($redirect);
-
-        $this->response = $redirect;
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function response()
-    {
-        if(!$this->response) $this->response = Redirect::back();
-
-        return $this->response;
-    }
-
 
 }

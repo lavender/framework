@@ -21,8 +21,7 @@ class WorkflowServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'workflow.factory',
-            'workflow.model'
+            'workflow.factory'
         ];
     }
 
@@ -35,9 +34,6 @@ class WorkflowServiceProvider extends ServiceProvider
     {
         // factory is used to make workflow instances
         $this->registerFactory();
-
-        // view model is built by the factory and rendered
-        $this->registerModel();
     }
 
 
@@ -46,30 +42,17 @@ class WorkflowServiceProvider extends ServiceProvider
      */
     private function registerFactory()
     {
-        $this->app->bindShared('workflow.factory', function ($app){
+        $this->app->bind('workflow.factory', function ($app){
 
             $session = new Services\Session();
 
-            $resolver = new Services\Resolver($app->config->get('workflow'));
+            $config = new Services\Config($app->config->get('workflow'));
 
             $validator = new Services\Validator();
 
-            return new Services\Factory($session, $resolver, $validator);
-        });
-    }
-
-
-
-    /**
-     * Register the workflow view model
-     */
-    private function registerModel()
-    {
-        $this->app->bind('workflow.model', function($app){
-
             $renderer = new Services\Renderer($app->view);
 
-            return new Services\Workflow($renderer);
+            return new Services\Factory($session, $config, $validator, $renderer);
         });
     }
 
