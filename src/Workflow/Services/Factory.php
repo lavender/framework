@@ -66,6 +66,31 @@ class Factory
         return $this;
     }
 
+    public function render()
+    {
+        try{
+
+            if(isset($this->workflow) && $state = $this->getState()){
+
+                $template = $this->config->get($this->workflow, $state, 'template');
+
+                $options = $this->config->get($this->workflow, $state, 'options', []);
+
+                $fields = $this->config->get($this->workflow, $state, 'fields', []);
+
+                return $this->renderer->render($this->workflow, $state, $template, $options, $fields);
+            }
+
+        } catch(\Exception $e){
+
+            // todo log exception
+            return "Error rendering workflow: ".$e->getMessage()."<pre>".$e->getTraceAsString();
+
+        }
+
+        return '';
+    }
+
     public function post($state, $request, $errors = null)
     {
         $response = Redirect::back();
@@ -153,27 +178,7 @@ class Factory
 
     public function __toString()
     {
-        try{
-
-            if(isset($this->workflow) && $state = $this->getState()){
-
-                $template = $this->config->get($this->workflow, $state, 'template');
-
-                $options = $this->config->get($this->workflow, $state, 'options', []);
-
-                $fields = $this->config->get($this->workflow, $state, 'fields', []);
-
-                return $this->renderer->render($this->workflow, $state, $template, $options, $fields);
-            }
-
-        } catch(\Exception $e){
-
-            // todo log exception
-            return "Error rendering workflow: ".$e->getMessage()."<pre>".$e->getTraceAsString();
-
-        }
-
-        return '';
+        return $this->render();
     }
 
 }
