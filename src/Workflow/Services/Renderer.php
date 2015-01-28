@@ -161,6 +161,8 @@ class Renderer implements RendererInterface
         return $rendered;
     }
 
+    // todo abstract
+    // todo use consumer error handling
     protected function hasError($name = null)
     {
         if($errors = \Session::get('errors')){
