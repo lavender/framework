@@ -305,7 +305,8 @@ class MigrateEntity extends Command
                     $result = '$table->dateTime("' . $column . '")->default("' . $default . '");';
                     break;
                 case Attribute::TEXT:
-                    $result = '$table->longText("' . $column . '");';
+                    if($nullable) $result = '$table->longText("' . $column . '")->nullable();';
+                    else $result = '$table->longText("' . $column . '");';
                     break;
                 default:
                     if($unique) $result = '$table->string("' . $column . '", 150)->unique();';
