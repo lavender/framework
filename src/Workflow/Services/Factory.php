@@ -35,6 +35,11 @@ class Factory
     protected $workflow;
 
     /**
+     * @var array
+     */
+    protected $params;
+
+    /**
      * @param Session $session
      * @param Config $config
      * @param Validator $validator
@@ -61,7 +66,7 @@ class Factory
     {
         $this->workflow = $workflow;
 
-        $this->config->params($params);
+        $this->params = $params;
 
         // return a clone so Factory can be reused
         return clone $this;
@@ -70,6 +75,8 @@ class Factory
     public function render()
     {
         try{
+
+            $this->config->params($this->params);
 
             if(isset($this->workflow) && $state = $this->getState()){
 
@@ -97,6 +104,7 @@ class Factory
         $response = Redirect::back();
 
         try{
+            $this->config->params($this->params);
 
             $workflow = $this->workflow;
 
