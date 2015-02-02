@@ -10,16 +10,16 @@ class Session
     /**
      * Find the current state from session
      * @param string $workflow
-     * @param array $states
+     * @param $default_state
      * @return array
      */
-    public function find($workflow, array $states)
+    public function find($workflow, $default_state)
     {
         if(!isset($this->resolved[$workflow])){
 
             if(!$state = $this->get($workflow)){
 
-                $state = reset($states);
+                $state = $default_state;
 
                 $this->set($workflow, $state);
 
