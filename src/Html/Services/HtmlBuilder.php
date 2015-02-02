@@ -9,8 +9,8 @@ class HtmlBuilder extends CoreHtmlBuilder
         return '<meta' . $this->attributes($attributes) . ' />' . PHP_EOL;
     }
 
-    public function table($table, $type = 'basic')
+    public function table($rows, $headers = [], $layout = null)
     {
-        return app('html.table.'.$type)->with('table', $table);
+        return app('html.elements.table')->make($rows, $headers, $layout);
     }
 }

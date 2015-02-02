@@ -37,14 +37,37 @@ class Entity extends Eloquent implements EntityInterface
     }
 
     /**
+     * @param $key
+     * @return mixed
+     */
+    public function backendLabel($key)
+    {
+        return $this->frontendLabel($key);
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function frontendLabel($key)
+    {
+        if(isset($this->config['attributes'][$key])){
+
+            return $this->config['attributes'][$key]['label'] ? : $key;
+
+        }
+
+        return $key;
+    }
+
+    /**
      * Render an attribute by key
      * @param $key
      * @return mixed
      */
     public function backendValue($key)
     {
-        return $this->renderer($key, 'backend')
-            ->render($this, $key);
+        return $this->decorateValue($key, 'backend');
     }
 
     /**
@@ -54,8 +77,7 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function frontendValue($key)
     {
-        return $this->renderer($key, 'frontend')
-            ->render($this, $key);
+        return $this->decorateValue($key, 'frontend');
     }
 
     /**
@@ -65,20 +87,40 @@ class Entity extends Eloquent implements EntityInterface
      * @param $type
      * @return mixed
      */
-    protected function renderer($key, $type)
+    protected function decorateValue($key, $type)
     {
-        if(isset($this->config['attributes'][$key])){
+        $renderer = $type . '.renderer';
 
-            $attribute = $this->config['attributes'][$key];
+        if(isset($this->config['attributes'][$key][$renderer])){
 
-            if($attribute[$type . '.renderer']){
+            if($renderable = $this->config['attributes'][$key][$renderer]){
 
-                return new $attribute[$type . '.renderer'];
+                $renderable = new $renderable;
+
+            } else {
+
+                $renderable = app('attribute.renderer');
+
             }
 
+            return $renderable->render($this, $key);
         }
-        return app('attribute.renderer');
+
+        return false;
     }
+
+    /**
+     * @return array
+     */
+    public function backendTable()
+    {
+        return array_where($this->getConfig('attributes'), function($key, $value){
+
+            return $value['backend.table'] !== null;
+
+        });
+    }
+
 
     /**
      * Load the first entity by it's attribute

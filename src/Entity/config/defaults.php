@@ -11,14 +11,31 @@ return [
     ],
 
     'attribute'         => [
-        'label'    => null,
+        /**
+         * Database
+         */
         'type'     => Attribute::VARCHAR,
-        'parent'   => false,
         'default'  => null,
         'nullable' => true,
         'unique'   => false,
+
+        /**
+         * Entity
+         */
+        'parent'   => false,
         'before_save' => null,
+
+        /**
+         * Views
+         */
+        'label' => null,
         'frontend.renderer' => null,
+        'backend.label' => null,
+        'backend.input' => 'text',
+        'backend.validate' => null,
+        'backend.renderer' => null,
+        'backend.table' => null,
+
 
         // todo support this stuff
         'length'   => null,

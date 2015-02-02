@@ -20,7 +20,18 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['html'];
+        return ['html', 'form'];
+    }
+
+
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->package('lavender/html', 'html', realpath(__DIR__));
     }
 
     /**
@@ -31,6 +42,8 @@ class HtmlServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerHtmlTable();
+
+        $this->registerFormBuilder();
 
         $this->registerHtmlBuilder();
     }
@@ -49,29 +62,26 @@ class HtmlServiceProvider extends ServiceProvider
     }
 
 
+    /**
+     * Register the form builder instance.
+     *
+     * @return void
+     */
+    protected function registerFormBuilder()
+    {
+        $this->app->bindShared('form', function ($app){
+            $form = new Services\FormBuilder($app['html'], $app['url'], $app['session.store']->getToken());
+
+            return $form->setSessionStore($app['session.store']);
+        });
+    }
+
+
     private function registerHtmlTable()
     {
-        $this->app->bindShared('html.table', function ($app){
+        $this->app->bind('html.elements.table', function ($app){
 
-            return new Table\Builder;
-
-        });
-
-        $this->app->bindShared('html.table.entity', function ($app){
-
-            return app('Lavender\Html\Table\Type\Entity');
-
-        });
-
-        $this->app->bindShared('html.table.config', function ($app){
-
-            return app('Lavender\Html\Table\Type\Config');
-
-        });
-
-        $this->app->bindShared('html.table.basic', function ($app){
-
-            return app('Lavender\Html\Table\Type\Basic');
+            return new Elements\Table();
 
         });
     }

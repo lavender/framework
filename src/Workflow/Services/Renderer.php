@@ -2,48 +2,40 @@
 namespace Lavender\Workflow\Services;
 
 use Illuminate\Support\Facades\Form;
-use Illuminate\View\Factory as View;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\Support\Contracts\ArrayableInterface as Arrayable;
 
 class Renderer
 {
-    /**
-     * @var View
-     */
-    protected $view;
 
-    /**
-     * @var string
-     */
-    protected $workflow;
+    protected $template;
+    protected $options;
+    protected $fields;
+    protected $identity;
 
-    /**
-     * @var string
-     */
-    protected $state;
-
-
-    public function __construct(View $view)
+    function __construct($template, array $options, array $fields, $identity)
     {
-        $this->view = $view;
+        $this->template = $template;
+
+        $this->options = $options;
+
+        $this->fields = $this->renderFields($identity, $fields);
     }
 
-    public function render($workflow, $state, $container, $options, $fields)
+    /**
+     * @return string
+     */
+    public function render()
     {
-        $this->workflow = $workflow;
-
-        $this->state = $state;
-
-        $fields = $this->renderFields($fields);
-
-        return $this->view->make($container)
-            ->with('options', $options)
-            ->with('fields', $fields)
+        return View::make($this->template)
+            ->with('options', $this->options)
+            ->with('fields', $this->fields)
             ->render();
     }
 
-    protected function renderFields($fields)
+
+    protected function renderFields($identity, array $fields)
     {
         $rendered = [];
 
@@ -52,9 +44,6 @@ class Renderer
 
         // render payload fields
         foreach($fields as $name => $field){
-
-            // todo: if 'values' represents a source model, request the values
-            if($field['values'] instanceof Arrayable) $field['values'] = new $field['values']->toArray();
 
             //todo: if null, set default value
             $field['value'] = $field['value'] === null ? '' : $field['value'];
@@ -105,6 +94,11 @@ class Renderer
                     $html .= Form::select($name, $field['values'], $field['value'], $field['options']);
                     break;
 
+                // Tables: $name, $collection, $selected, $options
+                case 'table':
+                    $html .= Form::table($field['values'], $field['headers']);
+                    break;
+
                 // Checkable fields: $name, $value, $checked, $options
                 case 'checkbox':
                     $field['value']?:1;
@@ -129,7 +123,7 @@ class Renderer
 
             }
 
-            if($field['validate'] && $error = $this->hasError($name)){
+            if($field['validate'] && $error = $this->hasError($identity, $name)){
 
                 $html .= implode(PHP_EOL, array_build($error, function($key, $val){
 
@@ -149,13 +143,11 @@ class Renderer
     }
 
     // todo use consumer error handling
-    protected function hasError($name = null)
+    protected function hasError($key, $name = null)
     {
         if($errors = \Session::get('errors')){
 
             if($errors instanceof ViewErrorBag){
-
-                $key = "{$this->workflow}_{$this->state}";
 
                 if($name == null) return $errors->$key->all();
 
@@ -171,4 +163,8 @@ class Renderer
         return [];
     }
 
+    public function __toString()
+    {
+        return $this->render();
+    }
 }
