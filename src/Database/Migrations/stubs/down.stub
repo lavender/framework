@@ -1,0 +1,8 @@
+
+        Schema::table("{{table}}", function (Blueprint $table){
+
+            {{foreign_keys}}
+
+            {{columns}}
+
+        });

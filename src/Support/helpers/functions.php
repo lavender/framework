@@ -35,25 +35,6 @@ if ( ! function_exists('recursive_merge'))
 }
 
 
-
-
-if ( ! function_exists('merge_defaults'))
-{
-    /**
-     * @param array $array
-     * @param string $type
-     */
-    function merge_defaults(array &$array, $type)
-    {
-        $defaults = Config::get('defaults.'.$type);
-
-        $array = recursive_merge($defaults, $array);
-    }
-}
-
-
-
-
 if ( ! function_exists('sort_children'))
 {
     /**
