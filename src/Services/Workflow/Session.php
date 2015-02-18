@@ -2,42 +2,17 @@
 namespace Lavender\Services\Workflow;
 
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\MessageBag;
 
 class Session
 {
-    protected $resolved = [];
-
-    /**
-     * Find the current state from session
-     * @param string $workflow
-     * @param $default_state
-     * @return array
-     */
-    public function find($workflow, $default_state)
-    {
-        if(!isset($this->resolved[$workflow])){
-
-            if(!$state = $this->get($workflow)){
-
-                $state = $default_state;
-
-                $this->set($workflow, $state);
-
-            }
-
-            $this->resolved[$workflow] = $state;
-
-        }
-
-        return $this->resolved[$workflow];
-    }
 
     /**
      * Flash only fields where flash = true
      *
      * @param array $fields
      */
-    public function flash(array $fields)
+    public function flashInput(array $fields)
     {
         $flash = array_where($fields, function($key, $config){
 
@@ -52,18 +27,28 @@ class Session
      * @param string $workflow
      * @return mixed
      */
-    protected function get($workflow)
+    public function getState($workflow)
     {
-        return \Session::get("workflow.{$workflow}");
+        return \Session::get("workflow.{$workflow}.state", false);
     }
 
     /**
      * @param string $workflow
      * @param string $state
      */
-    public function set($workflow, $state)
+    public function setState($workflow, $state)
     {
-        \Session::put("workflow.{$workflow}", $state);
+        \Session::put("workflow.{$workflow}.state", $state);
+    }
+
+    public function setErrors($workflow, $errors)
+    {
+        \Session::put("workflow.{$workflow}.errors", $errors);
+    }
+
+    public function getErrors($workflow)
+    {
+        return \Session::pull("workflow.{$workflow}.errors", new MessageBag([]));
     }
 
 }

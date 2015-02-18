@@ -1,41 +1,31 @@
 <?php
 namespace Lavender\Services\Workflow;
 
-use Illuminate\Support\Facades\Form;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\ViewErrorBag;
-use Illuminate\Support\Contracts\ArrayableInterface as Arrayable;
+use Form;
+use Illuminate\Support\MessageBag;
 
 class Renderer
 {
 
-    protected $template;
-    protected $options;
-    protected $fields;
-    protected $identity;
-
-    function __construct($template, array $options, array $fields, $identity)
-    {
-        $this->template = $template;
-
-        $this->options = $options;
-
-        $this->fields = $this->renderFields($identity, $fields);
-    }
+    protected $errors;
 
     /**
      * @return string
      */
-    public function render()
+    public function render($workflow, MessageBag $errors)
     {
-        return View::make($this->template)
-            ->with('options', $this->options)
-            ->with('fields', $this->fields)
+        $this->errors = $errors;
+
+        $fields = $this->renderFields($workflow->fields);
+
+        return view($workflow->template)
+            ->with('options', $workflow->options)
+            ->with('fields', $fields)
             ->render();
     }
 
 
-    protected function renderFields($identity, array $fields)
+    protected function renderFields(array $fields)
     {
         $rendered = [];
 
@@ -49,13 +39,13 @@ class Renderer
             $field['value'] = $field['value'] === null ? '' : $field['value'];
 
             // find or create field id
-            $field['options']['id'] = $field['options']['id']?:$name;
+            $field['options']['id'] = isset($field['options']['id']) ? $field['options']['id'] : 'field-'.$name;
 
             // start the payload output string
             $html = '';
 
             // create the label
-            if($field['label']) $html .= \Form::label($field['options']['id'], $field['label'], $field['label_options']);
+            if($field['label']) $html .= Form::label($field['options']['id'], $field['label'], $field['label_options']);
 
             // create the field
             switch($field['type']){
@@ -123,7 +113,7 @@ class Renderer
 
             }
 
-            if($field['validate'] && $error = $this->hasError($identity, $name)){
+            if($field['validate'] && $error = $this->getError($name)){
 
                 $html .= implode(PHP_EOL, array_build($error, function($key, $val){
 
@@ -142,29 +132,9 @@ class Renderer
         return $rendered;
     }
 
-    // todo use consumer error handling
-    protected function hasError($key, $name = null)
+    protected function getError($key)
     {
-        if($errors = \Session::get('errors')){
-
-            if($errors instanceof ViewErrorBag){
-
-                if($name == null) return $errors->$key->all();
-
-                return $errors->$key->get($name);
-
-            }
-
-            //todo just checking..
-            die("INVALID ERRORS PASSED");
-
-        }
-
-        return [];
+        return $this->errors->get($key);
     }
 
-    public function __toString()
-    {
-        return $this->render();
-    }
 }

@@ -11,7 +11,7 @@ class Validator
      *
      * @param array $fields
      * @param array $request
-     * @throws StateException
+     * @throws WorkflowException
      */
     public function run(array $fields, array $request)
     {
