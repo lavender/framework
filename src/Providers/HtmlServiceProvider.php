@@ -2,6 +2,8 @@
 namespace Lavender\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Lavender\Services\FormBuilder;
+use Lavender\Services\HtmlBuilder;
 
 class HtmlServiceProvider extends ServiceProvider
 {
@@ -31,7 +33,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('lavender/html', 'html', realpath(__DIR__));
+
     }
 
     /**
@@ -41,7 +43,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerHtmlTable();
+//        $this->registerHtmlTable();
 
         $this->registerFormBuilder();
 
@@ -56,8 +58,8 @@ class HtmlServiceProvider extends ServiceProvider
      */
     private function registerHtmlBuilder()
     {
-        $this->app->bindShared('html', function ($app){
-            return new Services\HtmlBuilder($app['url']);
+        $this->app->singleton('html', function ($app){
+            return new HtmlBuilder($app['url']);
         });
     }
 
@@ -69,22 +71,22 @@ class HtmlServiceProvider extends ServiceProvider
      */
     protected function registerFormBuilder()
     {
-        $this->app->bindShared('form', function ($app){
-            $form = new Services\FormBuilder($app['html'], $app['url'], $app['session.store']->getToken());
+        $this->app->singleton('form', function ($app){
+            $form = new FormBuilder($app['html'], $app['url'], $app['session.store']->getToken());
 
             return $form->setSessionStore($app['session.store']);
         });
     }
 
 
-    private function registerHtmlTable()
-    {
-        $this->app->bind('html.elements.table', function ($app){
-
-            return new Elements\Table();
-
-        });
-    }
+//    private function registerHtmlTable()
+//    {
+//        $this->app->bind('html.elements.table', function ($app){
+//
+//            return new Elements\Table();
+//
+//        });
+//    }
 
 }
 

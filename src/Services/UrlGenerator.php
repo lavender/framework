@@ -3,6 +3,7 @@ namespace Lavender\Services;
 
 use Illuminate\Routing\UrlGenerator as CoreUrlGenerator;
 
+//todo move to theme
 class UrlGenerator extends CoreUrlGenerator
 {
 
@@ -15,6 +16,9 @@ class UrlGenerator extends CoreUrlGenerator
      */
     public function asset($path, $secure = null)
     {
+        // add support for remote urls
+        if(stristr($path, '//') !== false) return $path;
+
         $path = $this->fallback($path);
 
         return parent::asset($path, $secure);
@@ -37,7 +41,7 @@ class UrlGenerator extends CoreUrlGenerator
 
         foreach(app('theme')->fallbacks as $fallback){
 
-            $asset_path = 'assets/'.$fallback.'/'.$asset;
+            $asset_path = 'assets/' . $fallback . '/' . $asset;
 
             $filepath = public_path($asset_path);
 

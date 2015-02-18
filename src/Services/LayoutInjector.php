@@ -2,6 +2,7 @@
 namespace Lavender\Services;
 
 use Lavender\Support\Facades\Layout;
+use Lavender\Support\Workflow;
 
 class LayoutInjector
 {
@@ -66,12 +67,13 @@ class LayoutInjector
 
             return \HTML::style($config['style']);
 
-        } elseif(workflow()->exists($config['workflow'])){
+        } elseif($config['workflow']){
 
-            return workflow($config['workflow']);
+            return Workflow::make($config['workflow']);
 
         } elseif(view()->exists($config['layout'])){
 
+            //todo do not pre-render
             return view($config['layout']);
 
         } elseif($config['config']){

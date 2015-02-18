@@ -1,4 +1,5 @@
-<?php namespace Lavender\Html\Services;
+<?php
+namespace Lavender\Services;
 
 use Illuminate\Html\HtmlBuilder as CoreHtmlBuilder;
 
@@ -9,8 +10,8 @@ class HtmlBuilder extends CoreHtmlBuilder
         return '<meta' . $this->attributes($attributes) . ' />' . PHP_EOL;
     }
 
-    public function table($rows, $headers = [], $layout = null)
-    {
-        return app('html.elements.table')->make($rows, $headers, $layout);
-    }
+//    public function table($rows, $headers = [], $layout = null)
+//    {
+//        return app('html.elements.table')->make($rows, $headers, $layout);
+//    }
 }
