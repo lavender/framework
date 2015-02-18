@@ -1,23 +1,16 @@
 <?php
 namespace Lavender\Support;
 
-use Illuminate\Support\Facades\View;
-
 abstract class ContentHierarchy
 {
     protected $type;
 
     protected $array = [];
 
-    protected $allowed_types = [];
 
     public function make($type)
     {
-        if(in_array($type, $this->allowed_types)){
-
-            $this->type = $type;
-
-        }
+        $this->type = $type;
 
         return $this;
     }
@@ -100,7 +93,7 @@ abstract class ContentHierarchy
 
             if(!isset($this->layout)) throw new \Exception("Layout not found.");
 
-            return View::make($this->layout)
+            return view($this->layout)
                 ->with('items', $this->all())->render();
 
         } catch (\Exception $e){

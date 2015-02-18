@@ -30,6 +30,7 @@ class LayoutInjector
                     'config' => null,
                     'layout' => null,
                     'script' => null,
+                    'menu' => null,
                     'style' => null,
                     'workflow' => null,
                     'meta' => null,
@@ -67,9 +68,13 @@ class LayoutInjector
 
             return \HTML::style($config['style']);
 
-        } elseif($config['workflow']){
+        } elseif($config['menu']){
 
-            return Workflow::make($config['workflow']);
+            return menu($config['menu']);
+
+        } elseif(workflow()->exists($config['workflow'])){
+
+            return workflow($config['workflow']);
 
         } elseif(view()->exists($config['layout'])){
 
