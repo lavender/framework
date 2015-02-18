@@ -140,6 +140,28 @@ class Guard extends CoreGuard
         return $this->save($account);
     }
 
+
+    protected function checkPasswords(EntityInterface $instance)
+    {
+        if($instance->getOriginal('password') != $instance->password){
+
+            if($instance->password === $instance->password_confirmation){
+
+                // Hashes password and unset password_confirmation field
+                $instance->password = bcrypt($instance->password);
+
+                unset($instance->password_confirmation);
+
+            } else {
+
+                return false;
+            }
+
+        }
+
+        return true;
+    }
+
     /**
      * Simply saves the given instance
      *
@@ -149,6 +171,8 @@ class Guard extends CoreGuard
      */
     public function save(EntityInterface $instance)
     {
+        if(!$this->checkPasswords($instance)) return false;
+
         return $instance->save();
     }
 
@@ -237,7 +261,7 @@ class Guard extends CoreGuard
     {
         $count = app('account.throttle')->throttleIdentity($identity);
 
-        if($count >= \Config::get('store.throttle_limit')) return false;
+        if($count >= config('store.throttle_limit')) return false;
 
         // Throttling delay!
         // See: http://www.codinghorror.com/blog/2009/01/dictionary-attacks-101.html
