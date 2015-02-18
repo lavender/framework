@@ -2,8 +2,9 @@
 namespace Lavender\Support;
 
 use Illuminate\Queue\SerializesModels;
+use Lavender\Contracts\Workflow as WorkflowContract;
 
-abstract class Workflow
+abstract class Workflow implements WorkflowContract
 {
 
     use SerializesModels;
@@ -34,6 +35,8 @@ abstract class Workflow
 
 
     /**
+     * Get data from an existing field.
+     *
      * @param string $field
      * @param string $key
      * @return mixed
@@ -45,6 +48,8 @@ abstract class Workflow
 
 
     /**
+     * Add data to existing field.
+     *
      * @param string $field
      * @param string $key
      * @param mixed $value

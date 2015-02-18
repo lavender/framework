@@ -35,6 +35,16 @@ class WorkflowFactory
         $this->validator = $validator;
     }
 
+    public function getInstance()
+    {
+        return $this;
+    }
+
+    public function exists($workflow)
+    {
+        return isset(config('workflow')[$workflow]);
+    }
+
     /**
      * Get the evaluated view contents for the given workflow.
      *
@@ -86,18 +96,20 @@ class WorkflowFactory
 
         } catch(WorkflowException $e){
 
+            // workflow validation errors
             $this->session->setErrors($this->workflow, $e->getErrors()->messages());
 
         } catch(QueryException $e){
 
-            throw new \Exception("Database error.");
+            // database errors
+            //todo log "Database error.";
 
         } catch(\Exception $e){
 
-            throw new \Exception($e->getTraceAsString());
+            // general exceptions
+            //todo log $e->getMessage();
 
         }
-
     }
 
     /**

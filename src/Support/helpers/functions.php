@@ -10,6 +10,17 @@ if ( ! function_exists('entity'))
 }
 
 
+if ( ! function_exists('workflow'))
+{
+    function workflow($workflow = null)
+    {
+        if($workflow === null) return Workflow::getInstance();
+
+        return Workflow::make($workflow);
+    }
+}
+
+
 if ( ! function_exists('recursive_merge'))
 {
     /**
