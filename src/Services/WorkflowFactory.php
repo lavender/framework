@@ -1,48 +1,39 @@
 <?php
 namespace Lavender\Services;
 
-use Illuminate\Database\QueryException;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
+use Lavender\Contracts\Workflow\Kernel;
 use Lavender\Exceptions\WorkflowException;
-use Lavender\Services\Workflow\Renderer;
-use Lavender\Services\Workflow\Session;
-use Lavender\Services\Workflow\Validator;
+use Illuminate\Database\QueryException;
 
 class WorkflowFactory
 {
 
+    /**
+     * @var Kernel
+     */
+    protected $kernel;
+
+    /**
+     * @var string name
+     */
     protected $workflow;
 
-    protected $state;
+    /**
+     * @var string|integer id
+     */
+    protected $form;
 
-    protected $config;
-
+    /**
+     * @var \stdClass
+     */
     protected $params;
 
-    protected $session;
-
-    protected $renderer;
-
-    protected $validator;
-
-    public function __construct(Session $session, Renderer $renderer, Validator $validator)
+    /**
+     * @param Kernel $kernel
+     */
+    public function __construct(Kernel $kernel)
     {
-        $this->session = $session;
-
-        $this->renderer = $renderer;
-
-        $this->validator = $validator;
-    }
-
-    public function getInstance()
-    {
-        return $this;
-    }
-
-    public function exists($workflow)
-    {
-        return isset(config('workflow')[$workflow]);
+        $this->kernel = $kernel;
     }
 
     /**
@@ -56,13 +47,9 @@ class WorkflowFactory
     {
         $this->workflow = $workflow;
 
-        $this->params = $params;
+        $this->setParams($params);
 
-        $this->config = config('workflow')[$workflow];
-
-        ksort($this->config);
-
-        $this->loadState();
+        $this->loadForm();
 
         return $this;
     }
@@ -74,30 +61,28 @@ class WorkflowFactory
      * @return mixed
      * @throws \Exception
      */
-    public function post(array $request)
+    public function handle(array $request)
     {
         try{
 
-            $workflow = $this->resolve();
+            $workflow = $this->resolve(['request' => $request]);
 
             // flash input into session
-            $this->session->flashInput($workflow->fields);
+            $this->kernel->flashInput($workflow->fields);
 
             // validate request
-            $this->validator->run($workflow->fields, $request);
+            $this->kernel->validateInput($workflow->fields, $request);
 
             // fire callbacks
-            $workflow->request = $request;
+            $this->kernel->fireEvent($workflow);
 
-            event($workflow);
-
-            // go to next state
-            $this->nextState();
+            // go to next form
+            $this->nextForm();
 
         } catch(WorkflowException $e){
 
             // workflow validation errors
-            $this->session->setErrors($this->workflow, $e->getErrors()->messages());
+            $this->kernel->setErrors($this->workflow, $e->getErrors()->messages());
 
         } catch(QueryException $e){
 
@@ -117,73 +102,94 @@ class WorkflowFactory
      * @param string $output
      * @return string
      */
-    public function render()
+    public function render($params = [])
     {
         $output = '';
 
         try{
 
-            $workflow = $this->resolve();
+            $workflow = $this->resolve($params);
 
-            $errors = $this->session->getErrors($this->workflow);
+            $errors = $this->kernel->getErrors($this->workflow);
 
-            $output = $this->renderer->render($workflow, $errors);
+            $output = $this->kernel->render($workflow, $errors);
 
         } catch(\Exception $e){
 
             // todo log exception
-            $output = $e->getMessage();
+            $output = $e->getMessage().'<pre>'.$e->getTraceAsString().'</pre>';
 
         }
 
         return $output;
     }
 
+
+    protected function resolve($params = [])
+    {
+        $resolved = $this->kernel->resolve($this->workflow, $this->form, $this->params);
+
+        foreach($params as $k => $v) $resolved->$k = $v;
+
+        return $resolved;
+    }
+
+
+    public function getInstance()
+    {
+        return $this;
+    }
+
+
+    public function exists($workflow)
+    {
+        return $this->kernel->exists($workflow);
+    }
+
+
+    public function setParams(array $params)
+    {
+        if(!isset($this->params)) $this->params = new \stdClass();
+
+        foreach($params as $k => $v) $this->params->$k = $v;
+    }
+
+
+    protected function nextForm()
+    {
+        $forms = $this->kernel->getForms($this->workflow);
+
+        $curr = array_search($this->form, $forms);
+
+        if($form = isset($forms[$curr + 1]) ? $forms[$curr + 1] : false){
+
+            $this->form = $form;
+
+            $this->updateSession();
+
+        }
+    }
+
+    protected function loadForm()
+    {
+        $this->form = $this->kernel->getForm($this->workflow);
+
+        if($this->form === false){
+
+            $forms = $this->kernel->getForms($this->workflow);
+
+            $this->form = reset($forms);
+
+            $this->updateSession();
+        }
+    }
+
+
     protected function updateSession()
     {
-        $this->session->setState($this->workflow, $this->state);
+        $this->kernel->setForm($this->workflow, $this->form);
     }
 
-
-    protected function nextState()
-    {
-        // all states
-        $states = $this->states();
-
-        $curr = array_search($this->state, $states);
-
-        if($state = isset($states[$curr + 1]) ? $states[$curr + 1] : false){
-
-            $this->state = $state;
-
-            $this->updateSession();
-
-        }
-    }
-
-    protected function loadState()
-    {
-        $this->state = $this->session->getState($this->workflow);
-
-        if($this->state === false){
-
-            $states = $this->states();
-
-            $this->state = reset($states);
-
-            $this->updateSession();
-        }
-    }
-
-    protected function states()
-    {
-        return array_keys($this->config);
-    }
-
-    protected function resolve()
-    {
-        return new $this->config[$this->state]($this->params);
-    }
 
     public function __toString()
     {

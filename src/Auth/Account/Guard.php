@@ -141,27 +141,6 @@ class Guard extends CoreGuard
     }
 
 
-    protected function checkPasswords(EntityInterface $instance)
-    {
-        if($instance->getOriginal('password') != $instance->password){
-
-            if($instance->password === $instance->password_confirmation){
-
-                // Hashes password and unset password_confirmation field
-                $instance->password = bcrypt($instance->password);
-
-                unset($instance->password_confirmation);
-
-            } else {
-
-                return false;
-            }
-
-        }
-
-        return true;
-    }
-
     /**
      * Simply saves the given instance
      *
@@ -171,8 +150,6 @@ class Guard extends CoreGuard
      */
     public function save(EntityInterface $instance)
     {
-        if(!$this->checkPasswords($instance)) return false;
-
         return $instance->save();
     }
 

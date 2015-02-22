@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Services\Workflow;
+namespace Lavender\Workflow;
 
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\MessageBag;
@@ -27,18 +27,18 @@ class Session
      * @param string $workflow
      * @return mixed
      */
-    public function getState($workflow)
+    public function getForm($workflow)
     {
-        return \Session::get("workflow.{$workflow}.state", false);
+        return \Session::get("workflow.{$workflow}.form", false);
     }
 
     /**
      * @param string $workflow
      * @param string $state
      */
-    public function setState($workflow, $state)
+    public function setForm($workflow, $state)
     {
-        \Session::put("workflow.{$workflow}.state", $state);
+        \Session::put("workflow.{$workflow}.form", $state);
     }
 
     public function setErrors($workflow, $errors)

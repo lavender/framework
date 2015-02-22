@@ -30,7 +30,7 @@ abstract class Workflow implements WorkflowContract
      */
     public function addField($field, array $data)
     {
-        $this->fields[$field] = $this->mergeDefaults($data);
+        $this->fields[$field] = $this->prepareField($data);
     }
 
 
@@ -66,31 +66,30 @@ abstract class Workflow implements WorkflowContract
      * @param array $data
      * @return array
      */
-    protected function mergeDefaults(array $data)
+    protected function prepareField(array $data)
     {
         return array_merge([
-            // field label
-            'label' => null,
-            'label_options' => [],
 
-            // applies to all fields
-            'type' => 'text',
+            /** Rendering config */
+            'default' => '',
             'position' => 0,
-            'name' => null,
-            'value' => null,
-            'options' => ['id' => null],
-            'validate' => [],
-            'comment' => null,
-            'flash' => true,
 
-            //applies to select fields and tables
-            'values' => [],
+            /** Handler config */
+            'flash' => true, // which fields to flash into session
+            'validate' => [], // field validation rules
 
-            //applies to tables
-            'headers' => [],
+            /** HTML config */
+            'label' => null, // html label
+            'label_options' => [], // label options
+            'comment' => null, // string comment
 
-            //applies to checkbox & radio fields
-            'checked' => [],
+            /** Field config */
+            'type' => 'text', // type alias
+            'name' => null, // field name
+            'value' => null, // field value
+            'options' => ['id' => null], // field options
+            'resource' => null,
+
         ], $data);
     }
 
@@ -101,32 +100,32 @@ abstract class Workflow implements WorkflowContract
      * @return mixed
      * @throws \Exception
      */
-    public function __call($method, $args)
-    {
-        if($field = isset($args[0]) ? $args[0] : false){
-
-            $key = snake_case(substr($method, 3));
-
-            switch(substr($method, 0, 3)){
-
-                case 'get' :
-
-                    return $this->getFieldData($field, $key);
-
-                case 'set' :
-
-                    $value = isset($args[1]) ? $args[1] : null;
-
-                    $this->setFieldData($field, $key, $value);
-
-                    return true;
-
-            }
-
-        }
-
-        throw new \Exception("Undefined method {$method}.");
-    }
+//    public function __call($method, $args)
+//    {
+//        if($field = isset($args[0]) ? $args[0] : false){
+//
+//            $key = snake_case(substr($method, 3));
+//
+//            switch(substr($method, 0, 3)){
+//
+//                case 'get' :
+//
+//                    return $this->getFieldData($field, $key);
+//
+//                case 'set' :
+//
+//                    $value = isset($args[1]) ? $args[1] : null;
+//
+//                    $this->setFieldData($field, $key, $value);
+//
+//                    return true;
+//
+//            }
+//
+//        }
+//
+//        throw new \Exception("Undefined method {$method}.");
+//    }
 
 
 }

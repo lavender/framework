@@ -13,7 +13,7 @@ use Lavender\Support\Contracts\EntityInterface;
 use Lavender\Support\Facades\Relationship;
 use Lavender\Support\Facades\Scope;
 
-class Entity extends Eloquent implements EntityInterface
+abstract class Entity extends Eloquent implements EntityInterface
 {
 
     use AttributeTrait, RelationshipTrait;
@@ -113,6 +113,7 @@ class Entity extends Eloquent implements EntityInterface
     /**
      * Load the attributes renderer if available
      * else use default renderer (returns raw value)
+     * todo entity attributes as objects
      * @param $key
      * @param $type
      * @return mixed
@@ -136,7 +137,7 @@ class Entity extends Eloquent implements EntityInterface
             return $renderable->render($this, $key);
         }
 
-        return false;
+        return $this->$key;
     }
 
     /**
@@ -144,7 +145,7 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function backendTable()
     {
-        return array_where($this->getConfig('attributes'), function($key, $value){
+        return ['id' => null] + array_where($this->getConfig('attributes'), function($key, $value){
 
             return $value['backend.table'] !== null;
 
@@ -190,6 +191,22 @@ class Entity extends Eloquent implements EntityInterface
         }
 
         return $attribute;
+    }
+
+    /**
+     * @param $key
+     * @throws \Exception
+     */
+    protected function getAttributeHandler($key)
+    {
+        if(isset($this->config['attributes'][$key])){
+
+            $handler = $this->config['attributes'][$key]['handler'];
+
+            return new $handler($this, $key);
+        }
+
+        return false;
     }
 
     /**
@@ -469,6 +486,9 @@ class Entity extends Eloquent implements EntityInterface
      */
     public function __call($method, $parameters)
     {
+        if($attribute = $this->getAttributeHandler($method)){
+            return $attribute;
+        }
         if($relationship = $this->getRelationship($method)){
             return $relationship;
         }

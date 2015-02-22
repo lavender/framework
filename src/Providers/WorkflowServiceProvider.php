@@ -2,10 +2,6 @@
 namespace Lavender\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Lavender\Services\Workflow\Renderer;
-use Lavender\Services\Workflow\Session;
-use Lavender\Services\Workflow\Validator;
-use Lavender\Services\WorkflowFactory;
 
 class WorkflowServiceProvider extends ServiceProvider
 {
@@ -48,16 +44,7 @@ class WorkflowServiceProvider extends ServiceProvider
     {
         $this->app->bind('workflow.factory', function ($app){
 
-            // session is used to save a user's current state for each workflow
-            $session = new Session();
-
-            // renderer is used to convert config to string html
-            $renderer = new Renderer();
-
-            // validator is used to validate user input
-            $validator = new Validator();
-
-            return new WorkflowFactory($session, $renderer, $validator);
+            return $app['Lavender\Services\WorkflowFactory'];
         });
     }
 

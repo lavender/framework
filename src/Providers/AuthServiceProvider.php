@@ -65,15 +65,9 @@ class AuthServiceProvider extends ServiceProvider
             return new Resolver($app);
         });
 
-
-//        $this->app->singleton(
-//            'Illuminate\Contracts\Auth\Guard',
-//            'Lavender\Auth\Account\Guard'
-//        );
-
-
         $this->app->singleton('auth.driver', function($app)
         {
+            dd("?");
             return $app['auth'];//->customer()->driver();
         });
     }
@@ -112,7 +106,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     private function registerAccountService()
     {
-        $this->app->bindShared('account.service', function ($app){
+        $this->app->singleton('account.service', function ($app){
 
             return new Manager($app);
         });
@@ -123,7 +117,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     private function registerPasswordService()
     {
-        $this->app->bindShared('account.password', function ($app){
+        $this->app->singleton('account.password', function ($app){
             return new Password($app);
         });
     }
@@ -134,7 +128,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     private function registerThrottleService()
     {
-        $this->app->bindShared('account.throttle', function ($app){
+        $this->app->singleton('account.throttle', function ($app){
             return new Throttle();
         });
     }

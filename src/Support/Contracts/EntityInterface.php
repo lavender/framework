@@ -23,6 +23,11 @@ interface EntityInterface
     public function frontendValue($key);
 
     /**
+     * @return mixed
+     */
+    public function backendTable();
+
+    /**
      * Load the first entity by it's attribute
      *
      * @param $attribute

@@ -21,9 +21,7 @@ class UrlServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return [
-            'url',
-        ];
+        return ['url'];
     }
 
     /**

@@ -1,6 +1,40 @@
 <?php
 
 
+if ( ! function_exists('paginate'))
+{
+    /**
+     * todo make a better html paginator
+     * @param \Illuminate\Contracts\Pagination\LengthAwarePaginator $collection
+     * @return string
+     */
+    function paginate(\Illuminate\Contracts\Pagination\LengthAwarePaginator $collection)
+    {
+        $current = $collection->currentPage();
+
+        $per = $collection->perPage();
+
+        $count = $collection->count();
+
+        $from = $current * $per;
+
+        $to = $from + $count;
+
+        $html = '';// "From {$from} to {$to}";
+
+        $previous = $current > 1 ? $collection->url("?page=".($current - 1)) : false;
+
+        $next = $collection->hasMorePages() ? $collection->nextPageUrl() : false;
+
+        if($previous) $html .= '<li>'.HTML::link($previous, "prev").'</li>';
+
+        if($next) $html .= '<li>'.HTML::link($next, "next").'</li>';
+
+        return '<ul>'.$html.'</ul>';
+    }
+}
+
+
 if ( ! function_exists('entity'))
 {
     function entity($e)
@@ -12,11 +46,20 @@ if ( ! function_exists('entity'))
 
 if ( ! function_exists('workflow'))
 {
-    function workflow($workflow = null)
+    function workflow($workflow = null, $params = [])
     {
         if($workflow === null) return Workflow::getInstance();
 
-        return Workflow::make($workflow);
+        return Workflow::make($workflow, $params);
+    }
+}
+
+
+if ( ! function_exists('append_section'))
+{
+    function append_section($section, array $config)
+    {
+        return app('view.injector')->append($section, $config);
     }
 }
 
@@ -119,5 +162,25 @@ if ( ! function_exists('array_walk_depth'))
 }
 
 
+if ( ! function_exists('attr'))
+{
+    /**
+     * Build an HTML attribute string from an array.
+     *
+     * @param array $attrs
+     * @return string
+     */
+    function attr(array $attrs)
+    {
+        $html = [];
 
+        foreach($attrs as $key => $value){
+
+            if($value) $html[$key] = $key.'="'.e($value).'"';
+
+        }
+
+        return count($html) > 0 ? ' '.implode(' ', $html) : '';
+    }
+}
 

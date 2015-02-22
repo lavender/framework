@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Services\Workflow;
+namespace Lavender\Workflow;
 
 use Lavender\Exceptions\WorkflowException;
 

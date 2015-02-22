@@ -2,10 +2,27 @@
 namespace Lavender\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Lavender\Services\LayoutInjector;
+use Lavender\Services\ViewInjector;
 
 class LayoutServiceProvider extends ServiceProvider
 {
+
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = true;
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['view.injector'];
+    }
 
     /**
      * Register the service provider.
@@ -14,19 +31,9 @@ class LayoutServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Wait until app is booted
-        $this->app->booted(function(){
+        $this->app->singleton('view.injector', function(){
 
-            // Inject views into our layouts
-            foreach(config('layout') as $viewName => $sections){
-
-                $this->app->view->composer($viewName, function ($view) use ($sections){
-
-                    $injector = new LayoutInjector;
-
-                    $injector->inject($sections);
-                });
-            }
+            return new ViewInjector();
 
         });
     }

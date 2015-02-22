@@ -23,7 +23,7 @@ class EntityServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['migrate.entity', 'attribute.renderer'];
+        return ['migrate.entity'];
     }
 
     /**
@@ -51,15 +51,6 @@ class EntityServiceProvider extends ServiceProvider
         // register artisan commands
         $this->registerCommands();
 
-        $this->registerAttributeRenderer();
-
-    }
-
-    protected function registerAttributeRenderer()
-    {
-        $this->app->bindShared('attribute.renderer', function($app){
-            return new AttributeRenderer();
-        });
     }
 
     /**
@@ -86,7 +77,7 @@ class EntityServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->app->bindShared('migrate.entity', function ($app){
+        $this->app->singleton('migrate.entity', function ($app){
 
             $packagePath = $app['path.base'] . '/vendor';
 
@@ -101,7 +92,7 @@ class EntityServiceProvider extends ServiceProvider
      */
     protected function registerCreator()
     {
-        $this->app->bindShared('entity.creator', function ($app){
+        $this->app->singleton('entity.creator', function ($app){
 
             return new Creator($app['files']);
         });
