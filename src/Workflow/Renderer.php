@@ -26,10 +26,19 @@ class Renderer
         $data['options']['name'] = $field;
 
         // render the label
-        $html .= $this->label($data);
+        $html .= $this->label(
+            $data['options']['id'],
+            $data['label'],
+            $data['label_options']
+        );
 
         // render the field
-        $html .= $this->_render($data['type'], $data['value'], $data['options'], $data['resource']);
+        $html .= $this->_render(
+            $data['type'],
+            $data['value'],
+            $data['options'],
+            $data['resource']
+        );
 
         // render the comment
         $html .= $this->comment($data['comment']);
@@ -42,7 +51,7 @@ class Renderer
 
     protected function _render($type, $value, $options = [], $resource = null)
     {
-        //todo assert/exception field not found
+        //todo assert/exception: field not found
         if(!isset($this->renderers[$type])) return '';
 
         list($class, $method) = $this->_renderer($type);
@@ -65,13 +74,13 @@ class Renderer
         return explode('@', $this->renderers[$type]);
     }
 
-    protected function label($data)
+    protected function label($id, $label, $options)
     {
-        if($data['label']){
+        if($label){
 
-            $this->setLabelFor($data);
+            $options['for'] = $id;
 
-            return $this->_render('label', $data['label'], $data['label_options']);
+            return $this->_render('label', $label, $options);
         }
 
         return '';
@@ -99,18 +108,21 @@ class Renderer
         return '';
     }
 
-    protected function setLabelFor(&$data)
-    {
-        $data['label_options']['for'] = $data['options']['id'];
-    }
-
     protected function setDefaultValue(&$data)
     {
-        if($data['value'] === null) $data['value'] = $data['default'];
+        if($data['value'] === null){
+
+            $data['value'] = $data['default'];
+
+        }
     }
 
     protected function setFieldId($field, &$data)
     {
-        if(!isset($data['options']['id'])) $data['options']['id'] = 'field-'.$field;
+        if(!isset($data['options']['id'])){
+
+            $data['options']['id'] = 'field-'.$field;
+
+        }
     }
 }
