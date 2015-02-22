@@ -25,7 +25,7 @@ class ViewInjector
 
         if($html = $this->renderByType($config)){
 
-            view()->inject($section, '@parent' . PHP_EOL . $html);
+            view()->inject($section, $html . PHP_EOL . '@parent');
 
         }
     }
