@@ -26,9 +26,9 @@ if ( ! function_exists('paginate'))
 
         $next = $collection->hasMorePages() ? $collection->nextPageUrl() : false;
 
-        if($previous) $html .= '<li>'.HTML::link($previous, "prev").'</li>';
+        if($previous) $html .= '<li><a href="'.$previous.'">prev</a></li>';
 
-        if($next) $html .= '<li>'.HTML::link($next, "next").'</li>';
+        if($next) $html .= '<li><a href="'.$next.'">next</a></li>';
 
         return '<ul>'.$html.'</ul>';
     }

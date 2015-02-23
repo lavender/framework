@@ -7,6 +7,9 @@ abstract class ContentHierarchy
 
     protected $array = [];
 
+    abstract public function view();
+
+    abstract public function prepare($data);
 
     public function make($type)
     {
@@ -19,7 +22,7 @@ abstract class ContentHierarchy
     {
         if(!isset($this->type)) throw new \Exception("Content type not set.");
 
-        $this->array[$this->type][$group] = $this->toObject($element);
+        $this->array[$this->type][$group] = $this->prepare($element);
 
         return $this;
     }
@@ -28,7 +31,7 @@ abstract class ContentHierarchy
     {
         if(!isset($this->type) || !isset($this->array[$this->type][$group])) throw new \Exception("Content group not set.");
 
-        $this->array[$this->type][$group]->children[] = $this->toObject($element);
+        $this->array[$this->type][$group]->children[] = $this->prepare($element);
 
         return $this;
     }
@@ -58,52 +61,6 @@ abstract class ContentHierarchy
         return $this->get();
     }
 
-    protected function toObject($data)
-    {
-        $item = new \stdClass();
-
-        $data = recursive_merge([
-            'content' => null,
-            'children' => [],
-        ], $data);
-
-        foreach($data as $key => $value){
-
-            if($key == 'children' && $value){
-
-                foreach($value as $index => $child){
-
-                    $value[$index] = $this->toObject($child);
-
-                }
-
-            }
-
-            $item->$key = $value;
-
-        }
-
-        return $item;
-    }
-
-
-    public function render()
-    {
-        try{
-
-            if(!isset($this->layout)) throw new \Exception("Layout not found.");
-
-            return view($this->layout)
-                ->with('items', $this->all())->render();
-
-        } catch (\Exception $e){
-
-            // todo log exception
-            return $e->getMessage();
-
-        }
-    }
-
 
     /**
      * Get the string contents of the content.
@@ -112,7 +69,18 @@ abstract class ContentHierarchy
      */
     public function __toString()
     {
-        return $this->render();
+        try{
+
+            return $this->view()
+                ->with('items', $this->all())
+                ->render();
+
+        } catch (\Exception $e){
+
+            // todo log exception
+            return $e->getMessage();
+
+        }
     }
 
 }

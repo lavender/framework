@@ -2,9 +2,9 @@
 namespace Lavender\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Lavender\Services\HtmlBuilder;
+use Lavender\Services\ViewInjector;
 
-class HtmlServiceProvider extends ServiceProvider
+class ViewServiceProvider extends ServiceProvider
 {
 
     /**
@@ -21,7 +21,7 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['html'];
+        return ['view.injector'];
     }
 
     /**
@@ -31,10 +31,11 @@ class HtmlServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('html', function ($app){
-            return new HtmlBuilder($app['url']);
+        $this->app->singleton('view.injector', function(){
+
+            return new ViewInjector();
+
         });
     }
 
 }
-

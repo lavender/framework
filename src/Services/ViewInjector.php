@@ -39,18 +39,19 @@ class ViewInjector
     {
         if($config['script']){
 
-            return \HTML::script($config['script']);
+            return $this->script($config['script']);
 
         } elseif($config['meta']){
 
-            return \HTML::meta($config['meta']);
+            return $this->meta($config['meta']);
 
         } elseif($config['style']){
 
-            return \HTML::style($config['style']);
+            return $this->style($config['style']);
 
         } elseif($config['menu']){
 
+            // todo allow application to implement renderers
             return menu($config['menu']);
 
         } elseif(workflow()->exists($config['workflow'])){
@@ -69,5 +70,50 @@ class ViewInjector
         }
 
         return false;
+    }
+
+    /**
+     * Generate a meta tag
+     *
+     * @param array $attributes
+     * @return string
+     */
+    function meta($attributes = [])
+    {
+        return '<meta' . attr($attributes) . ' />' . PHP_EOL;
+    }
+
+    /**
+     * Generate a link to a JavaScript file.
+     *
+     * @param  string  $url
+     * @param  array   $attributes
+     * @param  bool    $secure
+     * @return string
+     */
+    public function script($url, $attributes = [], $secure = null)
+    {
+        $attributes['src'] = asset($url, $secure);
+
+        return '<script'.attr($attributes).'></script>'.PHP_EOL;
+    }
+
+    /**
+     * Generate a link to a CSS file.
+     *
+     * @param  string  $url
+     * @param  array   $attributes
+     * @param  bool    $secure
+     * @return string
+     */
+    public function style($url, $attributes = [], $secure = null)
+    {
+        $defaults = ['media' => 'all', 'type' => 'text/css', 'rel' => 'stylesheet'];
+
+        $attributes = $attributes + $defaults;
+
+        $attributes['href'] = asset($url, $secure);
+
+        return '<link'.attr($attributes).'>'.PHP_EOL;
     }
 }
