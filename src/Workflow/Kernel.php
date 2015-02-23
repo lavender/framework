@@ -44,6 +44,11 @@ class Kernel implements WorkflowKernel
     protected $workflowHandlers;
 
     /**
+     * @var string
+     */
+    protected $workflowTemplate;
+
+    /**
      * Initialize the workflow kernel.
      *
      * @param Dispatcher $events
@@ -54,6 +59,8 @@ class Kernel implements WorkflowKernel
      */
     public function __construct(Dispatcher $events, Session $session, Renderer $renderer, Validator $validator)
     {
+        if(!isset($this->workflowTemplate)) throw new \Exception("Missing workflow template definition.");
+
         if(!isset($this->workflowHandlers)) throw new \Exception("Missing workflow handlers definition.");
 
         if(!isset($this->workflowForms)) throw new \Exception("Missing workflow forms definition.");
@@ -107,7 +114,7 @@ class Kernel implements WorkflowKernel
 
         }
 
-        return view($workflow->template)
+        return view($this->workflowTemplate)
             ->with('options', $workflow->options)
             ->with('fields', $fields)
             ->render();

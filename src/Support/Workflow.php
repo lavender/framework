@@ -11,9 +11,7 @@ abstract class Workflow implements WorkflowContract
 
     public $fields = [];
 
-    public $template = 'workflow.form';
-
-    public $options = [];
+    public $options = ['method' => 'post'];
 
 
     /**
@@ -92,40 +90,6 @@ abstract class Workflow implements WorkflowContract
 
         ], $data);
     }
-
-
-    /**
-     * @param $method
-     * @param $args
-     * @return mixed
-     * @throws \Exception
-     */
-//    public function __call($method, $args)
-//    {
-//        if($field = isset($args[0]) ? $args[0] : false){
-//
-//            $key = snake_case(substr($method, 3));
-//
-//            switch(substr($method, 0, 3)){
-//
-//                case 'get' :
-//
-//                    return $this->getFieldData($field, $key);
-//
-//                case 'set' :
-//
-//                    $value = isset($args[1]) ? $args[1] : null;
-//
-//                    $this->setFieldData($field, $key, $value);
-//
-//                    return true;
-//
-//            }
-//
-//        }
-//
-//        throw new \Exception("Undefined method {$method}.");
-//    }
 
 
 }
