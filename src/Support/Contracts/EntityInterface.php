@@ -25,7 +25,7 @@ interface EntityInterface
     /**
      * @return mixed
      */
-    public function backendTable();
+//    public function backendTable();
 
     /**
      * Load the first entity by it's attribute
