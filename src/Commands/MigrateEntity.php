@@ -150,7 +150,7 @@ class MigrateEntity extends Command
     /**
      * Update the entity
      */
-    protected function updateEntity($entity)
+    protected function updateEntity(Entity $entity)
     {
         $action = \Schema::hasTable($entity->getTable()) ? 'update' : 'create';
 
@@ -164,15 +164,15 @@ class MigrateEntity extends Command
      *
      * @return array
      */
-    protected function buildTable($entity)
+    protected function buildTable(Entity $entity)
     {
         // Prepare pivot tables and one-to-* columns
-        $attributes = $this->prepareRelationships($entity);
+        $attributes = $this->prepareRelationships($entity) + $entity->getAttributeConfig();
 
         // Allow other services to append schema
-        foreach(event(new SchemaPrepare($entity)) as $attributes){
+        foreach(event(new SchemaPrepare($entity)) as $attrs){
 
-            foreach((array)$attributes as $key => $value){
+            foreach((array)$attrs as $key => $value){
 
                 $attributes[$key] = $this->applyAttributeDefaults($value);
 

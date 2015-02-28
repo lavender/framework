@@ -103,7 +103,7 @@ abstract class Entity extends Eloquent implements EntityContract
 
         // This let's us use our relationship aliases to
         // set relationships as they are being filled.
-        if($prepare) $this->prepareAttributes($attributes);
+        if($prepare) $attributes = $this->prepareAttributes($attributes);
 
         return parent::fill($attributes);
     }
@@ -297,7 +297,7 @@ abstract class Entity extends Eloquent implements EntityContract
      * @param array $attributes
      * @throws \Exception Unknown relationship type
      */
-    protected function prepareAttributes(&$attributes)
+    protected function prepareAttributes($attributes)
     {
         foreach($attributes as $key => $value){
 
@@ -356,6 +356,7 @@ abstract class Entity extends Eloquent implements EntityContract
 
         }
 
+        return $attributes;
     }
 
     /**
