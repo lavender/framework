@@ -31,7 +31,7 @@ class Attribute implements AttributeContract
 
     public function value()
     {
-        return (string)$this->entity->{$this->key};
+        return $this->entity->{$this->key};
     }
 
     public function backend()
@@ -46,6 +46,6 @@ class Attribute implements AttributeContract
 
     public function __toString()
     {
-        return $this->value();
+        return (string)$this->value();
     }
 }

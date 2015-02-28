@@ -43,7 +43,7 @@ abstract class Entity extends Eloquent implements EntityContract
     /**
      * Get the model's attributes
      *
-     * @return string
+     * @return array
      */
     public function getAttributeConfig()
     {
@@ -53,7 +53,7 @@ abstract class Entity extends Eloquent implements EntityContract
     /**
      * Get the model's relationships
      *
-     * @return string
+     * @return array
      */
     public function getRelationshipConfig()
     {
@@ -295,10 +295,23 @@ abstract class Entity extends Eloquent implements EntityContract
      * Save various model relationships; used when creating a new entity
      *
      * @param array $attributes
+     * @return array
      * @throws \Exception Unknown relationship type
      */
     protected function prepareAttributes($attributes)
     {
+        foreach($this->getAttributeConfig() as $attr => $config){
+
+            // If the attribute is not defined in model or $attributes array
+            // set the default value.
+            if(!isset($this->attributes[$attr]) && !isset($attributes[$attr])){
+
+                $attributes[$attr] = $config['default'];
+
+            }
+
+        }
+
         foreach($attributes as $key => $value){
 
             if(isset($this->config['attributes'][$key])){
