@@ -283,7 +283,7 @@ abstract class Entity extends Eloquent implements EntityContract
         }
 
         // merge relationship defaults
-        foreach($this->config['attributes'] as $rel => $values){
+        foreach($this->config['relationships'] as $rel => $values){
 
             $this->config['relationships'][$rel] = $this->applyRelationshipDefaults($values);
         }

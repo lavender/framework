@@ -2,6 +2,7 @@
 namespace Lavender\Commands;
 
 use Illuminate\Console\Command;
+use Lavender\Contracts\Entity;
 use Lavender\Database\Migrations\Creator;
 use Lavender\Events\Entity\SchemaPrepare;
 use Lavender\Database\Attribute;
@@ -193,7 +194,7 @@ class MigrateEntity extends Command
         }
     }
 
-    protected function prepareRelationships($entity)
+    protected function prepareRelationships(Entity $entity)
     {
         $attributes = [];
 
@@ -214,7 +215,7 @@ class MigrateEntity extends Command
             ){
                 $this->pivots[$table][$foreignKey] = $attribute;
 
-                $this->pivots[$table][$localKey] = $this->applyAttributeDefaults(['parent' => $entity->__toString()]);
+                $this->pivots[$table][$localKey] = $this->applyAttributeDefaults(['parent' => $entity->getEntityName()]);
 
             } elseif($relationship['type'] == Relationship::HAS_ONE){
 
