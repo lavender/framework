@@ -8,15 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Lavender\Support\Traits\AttributeTrait;
+use Lavender\Support\Traits\EntityShorthandTrait;
 use Lavender\Support\Traits\RelationshipTrait;
-use Lavender\Support\Contracts\EntityInterface;
-use Lavender\Support\Facades\Relationship;
-use Lavender\Support\Facades\Scope;
+use Lavender\Contracts\Entity as EntityContract;
 
-abstract class Entity extends Eloquent implements EntityInterface
+abstract class Entity extends Eloquent implements EntityContract
 {
+    use AttributeTrait, RelationshipTrait, EntityShorthandTrait;
 
-    use AttributeTrait, RelationshipTrait;
     /**
      * Unique model name
      *
@@ -32,126 +31,82 @@ abstract class Entity extends Eloquent implements EntityInterface
     private $config;
 
     /**
-     * Reload the configuration and set fillable attributes.
-     * todo move defaults to where they apply
+     * Get the model's config name
+     *
+     * @return string
      */
-    public function reload()
+    public function getEntityName()
     {
-        $config = config("entity", []);
-
-        if(!isset($config[$this->entity])) throw new \Exception("No configuration found for entity {$this->entity}.");
-
-        // merge config defaults
-        $this->config = array_merge([
-                'attributes'    => [],
-                'relationships' => [],
-                'scope'         => Scope::IS_GLOBAL,
-            ],
-            $config[$this->entity]
-        );
-
-        // merge attribute defaults
-        foreach($this->config['attributes'] as $attr => $values){
-
-            $this->config['attributes'][$attr] = $this->applyAttributeDefaults($values);
-
-        }
-
-        // merge relationship defaults
-        foreach($this->config['relationships'] as $rel => $values){
-
-            $this->config['relationships'][$rel] = $this->applyRelationshipDefaults($values);
-        }
-
-        $this->fillable = array_keys($this->config['attributes']);
+        return $this->entity;
     }
 
     /**
-     * @param $key
-     * @return mixed
+     * Get the model's attributes
+     *
+     * @return string
      */
-    public function backendLabel($key)
+    public function getAttributeConfig()
     {
-        return $this->frontendLabel($key);
+        return $this->config['attributes'];
     }
 
     /**
-     * @param $key
-     * @return mixed
+     * Get the model's relationships
+     *
+     * @return string
      */
-    public function frontendLabel($key)
+    public function getRelationshipConfig()
     {
-        if(isset($this->config['attributes'][$key])){
-
-            return $this->config['attributes'][$key]['label'] ? : $key;
-
-        }
-
-        return $key;
+        return $this->config['relationships'];
     }
 
     /**
-     * Render an attribute by key
-     * @param $key
-     * @return mixed
+     * Get the model's scope
+     *
+     * @return string
      */
-    public function backendValue($key)
+    public function getScope()
     {
-        return $this->decorateValue($key, 'backend');
+        return $this->config['scope'];
     }
 
     /**
-     * Render an attribute by key
-     * @param $key
+     * Get an attribute from the model.
+     *
+     * @param  string $key
+     * @throws \Exception
      * @return mixed
      */
-    public function frontendValue($key)
+    public function getAttribute($key)
     {
-        return $this->decorateValue($key, 'frontend');
-    }
+        // If the attribute is not already available to the
+        // model, let's look for any configured relationships
+        // that match the $key and return a Collection|static
+        if(!$attribute = parent::getAttribute($key)){
 
-    /**
-     * Load the attributes renderer if available
-     * else use default renderer (returns raw value)
-     * todo entity attributes as objects
-     * @param $key
-     * @param $type
-     * @return mixed
-     */
-    protected function decorateValue($key, $type)
-    {
-        $renderer = $type . '.renderer';
+            if($relationship = $this->resolveRelationship($key)){
 
-        if(isset($this->config['attributes'][$key][$renderer])){
+                $attribute = $relationship->getResults();
 
-            if($renderable = $this->config['attributes'][$key][$renderer]){
-
-                $renderable = new $renderable;
-
-            } else {
-
-                $renderable = app('attribute.renderer');
-
+                $this->relations[$key] = $relationship;
             }
-
-            return $renderable->render($this, $key);
         }
 
-        return $this->$key;
+        return $attribute;
     }
 
-    /**
-     * @return array
-     */
-    public function backendTable()
+    public function fill(array $attributes, $prepare = true)
     {
-        return ['id' => null] + array_where($this->getConfig('attributes'), function($key, $value){
+        // Make sure the entity configuration is loaded
+        // before we attempt to fill the model.
+        $this->prepareConfig();
 
-            return $value['backend.table'] !== null;
+        // This let's us use our relationship aliases to
+        // set relationships as they are being filled.
+        if($prepare) $this->prepareAttributes($attributes);
 
-        });
+        return parent::fill($attributes);
     }
-
 
     /**
      * Load the first entity by it's attribute
@@ -169,41 +124,42 @@ abstract class Entity extends Eloquent implements EntityInterface
     }
 
     /**
-     * Get an attribute from the model.
-     *
-     * @param  string $key
-     * @throws \Exception
-     * @return mixed
-     */
-    public function getAttribute($key)
-    {
-        // If the attribute is not already available to the
-        // model, let's look for any configured relationships
-        // that match the $key and return a Collection|static
-        if(!$attribute = parent::getAttribute($key)){
-
-            if($relationship = $this->getRelationship($key)){
-
-                $attribute = $relationship->getResults();
-
-                $this->relations[$key] = $relationship;
-            }
-        }
-
-        return $attribute;
-    }
-
-    /**
      * @param $key
+     * @return bool
      * @throws \Exception
      */
-    protected function getAttributeHandler($key)
+    protected function resolveAttribute($key)
     {
         if(isset($this->config['attributes'][$key])){
 
             $handler = $this->config['attributes'][$key]['handler'];
 
             return new $handler($this, $key);
+
+        } elseif($this->isNativeAttribute($key)){
+
+            return new Attribute($this, $key);
+
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if key is a native attribute
+     * @param $key
+     * @return bool
+     */
+    protected function isNativeAttribute($key)
+    {
+        if($this->timestamps && in_array($key, ['updated_at', 'created_at'])){
+
+            return true;
+
+        } elseif($key == $this->primaryKey){
+
+            return true;
+
         }
 
         return false;
@@ -214,7 +170,7 @@ abstract class Entity extends Eloquent implements EntityInterface
      * @return BelongsTo|BelongsToMany|HasMany|HasOne|null
      * @throws \Exception
      */
-    protected function getRelationship($key)
+    protected function resolveRelationship($key)
     {
         $attribute = null;
 
@@ -224,7 +180,7 @@ abstract class Entity extends Eloquent implements EntityInterface
 
             $model = entity($relationship['entity']);
 
-            $onEntity = snake_case($model->getEntity());
+            $onEntity = snake_case($relationship['entity']);
 
             $thisEntity = snake_case($this->entity);
 
@@ -279,11 +235,11 @@ abstract class Entity extends Eloquent implements EntityInterface
     /**
      * Get a new query builder instance for the connection.
      *
-     * @return \Lavender\Entity\Database\QueryBuilder
+     * @return QueryBuilder
      */
     protected function newBaseQueryBuilder()
     {
-        $this->reload();
+        $this->prepareConfig();
 
         $conn = $this->getConnection();
 
@@ -298,48 +254,41 @@ abstract class Entity extends Eloquent implements EntityInterface
     }
 
     /**
-     * Get the model's relationships
-     *
-     * @return string
+     * Reload the configuration and set fillable attributes.
      */
-    public function getRelationships()
+    protected function prepareConfig()
     {
-        return $this->config['relationships'];
-    }
+        $config = config("entity", []);
 
-    /**
-     * Get the model's config name
-     *
-     * @return string
-     */
-    public function getEntity()
-    {
-        return $this->entity;
-    }
+        $entity = $this->entity;
 
-    /**
-     * Get the model's config
-     *
-     * @return string
-     */
-    public function getConfig($node = null)
-    {
-        if($node) return $this->config[$node];
+        if(!isset($config[$entity])){
 
-        return $this->config;
-    }
+            throw new \Exception("No configuration found for entity {$entity}.");
 
-    public function fill(array $attributes, $prepare = true)
-    {
-        // Make sure the entity configuration is loaded
-        // before we attempt to fill the model.
-        $this->reload();
+        }
 
-        // This let's us use our relationship aliases to
-        // set relationships as they are being filled.
-        if($prepare) $this->prepareAttributes($attributes);
+        // assign the given config
+        $this->config = $config[$entity] + [
+            'attributes'    => [],
+            'relationships' => [],
+            'scope'         => Scope::DISABLED,
+        ];
 
-        return parent::fill($attributes);
+        // merge attribute defaults
+        foreach($this->config['attributes'] as $attr => $values){
+
+            $this->config['attributes'][$attr] = $this->applyAttributeDefaults($values);
+
+        }
+
+        // merge relationship defaults
+        foreach($this->config['attributes'] as $rel => $values){
+
+            $this->config['relationships'][$rel] = $this->applyRelationshipDefaults($values);
+        }
+
+        $this->fillable(array_keys($this->config['attributes']));
     }
 
     /**
@@ -350,25 +299,13 @@ abstract class Entity extends Eloquent implements EntityInterface
      */
     protected function prepareAttributes(&$attributes)
     {
-        $relationships = array_keys($this->config['relationships']);
-
-        foreach($this->config['attributes'] as $key => $config){
-
-            if(isset($config['before_save']) && $config['before_save']){
-
-                $before_save = new $config['before_save'];
-
-                $value = isset($attributes[$key]) ? $attributes[$key] : null;
-
-                $before_save->before_save($value);
-
-                $attributes[$key] = $value;
-            }
-        }
-
         foreach($attributes as $key => $value){
 
-            if(in_array($key, $relationships)){
+            if(isset($this->config['attributes'][$key])){
+
+                $attributes[$key] = $this->$key()->before_save($value);
+
+            } elseif(isset($this->config['relationships'][$key])){
 
                 unset($attributes[$key]);
 
@@ -414,67 +351,11 @@ abstract class Entity extends Eloquent implements EntityInterface
 
                         break;
                 }
+
             }
+
         }
-    }
 
-    /**
-     * Translate shorthand:
-     * We may want to pass shorthand representations of models
-     * for importing, seeding, mass actions, etc..
-     *
-     * @param $value
-     */
-    protected function translateShorthand(&$value)
-    {
-        // $value is an array but not an array of Entity(s)
-        if(is_array($value) && !current($value) instanceof Entity){
-
-            $this->array_walk($value, [$this, '_translate']);
-        }
-    }
-
-    /**
-     * Translates $value into Entity
-     * Expected syntax: ['entity' => ['attribute' => 'value']] or ['entity' => id]
-     *
-     * @param array $value
-     * @param string $entity
-     */
-    private function _translate(&$value, $entity)
-    {
-        $has_key = is_array($value) && !is_numeric(key($value));
-
-        $this->array_walk($value, [$this, '_make'], [$entity, $has_key ? key($value) : 'id']);
-    }
-
-    /**
-     * Converts current $value to Entity
-     * @param $value
-     * @param $index
-     * @param $userdata
-     */
-    private function _make(&$value, $index, $userdata)
-    {
-        list($entity, $attribute) = $userdata;
-
-        $value = entity($entity)->findByAttribute($attribute, $value);
-    }
-
-    /**
-     * @param $original
-     * @param $callback
-     * @param array $userdata
-     */
-    protected function array_walk(&$original, $callback, $userdata = [])
-    {
-        $resolved = (array)$original;
-
-        array_walk($resolved, $callback, $userdata);
-
-        if(count((array)$original) == 1) $resolved = reset($resolved);
-
-        $original = $resolved;
     }
 
     /**
@@ -486,10 +367,10 @@ abstract class Entity extends Eloquent implements EntityInterface
      */
     public function __call($method, $parameters)
     {
-        if($attribute = $this->getAttributeHandler($method)){
+        if($attribute = $this->resolveAttribute($method)){
             return $attribute;
         }
-        if($relationship = $this->getRelationship($method)){
+        if($relationship = $this->resolveRelationship($method)){
             return $relationship;
         }
 

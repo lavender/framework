@@ -34,7 +34,7 @@ class Throttle
         // Retuns the current count
         $count = $this->countThrottle($identity, 0);
 
-        return $count >= \Config::get('store.throttle_limit', 10);
+        return $count >= config('store.throttle_limit', 10);
     }
 
     /**
@@ -76,7 +76,7 @@ class Throttle
 
         $count = $count + $increments;
 
-        $ttl = \Config::get('store.throttle_time_period');
+        $ttl = config('store.throttle_time_period');
 
         app('cache')->put('login_throttling:' . md5($identityString), $count, $ttl);
 

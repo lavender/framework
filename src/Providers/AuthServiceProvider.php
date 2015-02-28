@@ -27,7 +27,6 @@ class AuthServiceProvider extends ServiceProvider
         return [
             'auth',
             'auth.driver',
-            'account.service',
             'account.password',
             'account.throttle',
         ];
@@ -41,8 +40,6 @@ class AuthServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerAuthenticator();
-
-        $this->registerAccountService();
 
         $this->registerPasswordService();
 
@@ -64,12 +61,6 @@ class AuthServiceProvider extends ServiceProvider
 
             return new Resolver($app);
         });
-
-        $this->app->singleton('auth.driver', function($app)
-        {
-            dd("?");
-            return $app['auth'];//->customer()->driver();
-        });
     }
 
     /**
@@ -81,7 +72,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->app->bind('Illuminate\Contracts\Auth\Authenticatable', function($app)
         {
-            return $app['auth'];//->user();
+            return $app['auth'];
         });
     }
 
@@ -96,19 +87,8 @@ class AuthServiceProvider extends ServiceProvider
         {
             $request->setUserResolver(function() use ($app)
             {
-                return $app['auth'];//->user();
+                return $app['auth'];
             });
-        });
-    }
-
-    /**
-     * Register the service used by the Account facade.
-     */
-    private function registerAccountService()
-    {
-        $this->app->singleton('account.service', function ($app){
-
-            return new Manager($app);
         });
     }
 

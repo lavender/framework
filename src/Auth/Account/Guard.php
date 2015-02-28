@@ -3,7 +3,7 @@ namespace Lavender\Auth\Account;
 
 use Illuminate\Auth\Guard as CoreGuard;
 use Illuminate\Contracts\Auth\UserProvider;
-use Lavender\Support\Contracts\EntityInterface;
+use Lavender\Contracts\Entity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -112,7 +112,7 @@ class Guard extends CoreGuard
      *
      * @return bool
      */
-    private function confirm(EntityInterface $account)
+    private function confirm(Entity $account)
     {
         $account->confirmed = true;
 
@@ -125,7 +125,7 @@ class Guard extends CoreGuard
      * todo interface for identity
      * @param  array $input Array containing 'username', 'email' and 'password'.
      *
-     * @return  EntityInterface User object that may or may not be saved successfully. Check the id to make sure.
+     * @return  Entity User object that may or may not be saved successfully. Check the id to make sure.
      */
     public function register($input)
     {
@@ -144,11 +144,11 @@ class Guard extends CoreGuard
     /**
      * Simply saves the given instance
      *
-     * @param  EntityInterface $instance
+     * @param  Entity $instance
      *
      * @return  boolean Success
      */
-    public function save(EntityInterface $instance)
+    public function save(Entity $instance)
     {
         return $instance->save();
     }
@@ -181,7 +181,7 @@ class Guard extends CoreGuard
 
             $account = $this->findByIdentity([$this->identity() => $given_identity]);
 
-            if($account instanceof EntityInterface){
+            if($account instanceof Entity){
 
                 if(!$account->confirmed && $mustBeConfirmed){
                     return false;

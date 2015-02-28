@@ -1,53 +1,51 @@
 <?php
 namespace Lavender\Database;
 
-use Lavender\Support\Contracts\EntityInterface;
+use Lavender\Contracts\Entity as EntityContract;
+use Lavender\Contracts\Entity\Attribute as AttributeContract;
 
-class Attribute
+class Attribute implements AttributeContract
 {
+    /**
+     * Entity Attribute Types
+     */
+    const DATE      = 'date';
+    const DECIMAL   = 'decimal';
+    const INDEX     = 'index';
+    const INTEGER   = 'int';
+    const BOOL      = 'bool';
+    const TEXT      = 'text';
+    const TIMESTAMP = 'timestamp';
+    const VARCHAR   = 'varchar';
+    
     protected $entity;
 
     protected $key;
 
-    public function __construct(EntityInterface $entity, $key)
+    public function __construct(EntityContract $entity, $key)
     {
         $this->entity = $entity;
 
         $this->key = $key;
     }
 
-    public function toLink($url = '/', $attrs = [])
-    {
-        return "<a href='{$url}'".attr($attrs).">" . $this->render() . "</a>";
-    }
-
-    public function toBold($attrs = [])
-    {
-        return "<strong".attr($attrs).">" . $this->render() . "</strong>";
-    }
-
-
-    /**
-     * Build a single attribute element.
-     *
-     * @param  string  $key
-     * @param  string  $value
-     * @return string
-     */
-    protected function attributeElement($key, $value)
-    {
-        if (is_numeric($key)) $key = $value;
-
-        if ( ! is_null($value)) return $key.'="'.e($value).'"';
-    }
-
-    public function render()
+    public function value()
     {
         return (string)$this->entity->{$this->key};
     }
 
+    public function backend()
+    {
+        return $this->value();
+    }
+
+    public function before_save($value)
+    {
+        return $value;
+    }
+
     public function __toString()
     {
-        return $this->render();
+        return $this->value();
     }
 }

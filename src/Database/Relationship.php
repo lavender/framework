@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Support\Facades;
+namespace Lavender\Database;
 
 class Relationship
 {
@@ -10,4 +10,5 @@ class Relationship
     const HAS_MANY = 'many';
     const HAS_ONE = 'hasone';
     const BELONGS_TO = 'belongs';
+
 }

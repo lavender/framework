@@ -1,7 +1,7 @@
 <?php
 namespace Lavender\Support\Traits;
 
-use Lavender\Support\Facades\Attribute;
+use Lavender\Database\Attribute;
 
 trait AttributeTrait
 {

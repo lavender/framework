@@ -4,8 +4,8 @@ namespace Lavender\Commands;
 use Illuminate\Console\Command;
 use Lavender\Database\Migrations\Creator;
 use Lavender\Events\Entity\SchemaPrepare;
-use Lavender\Support\Facades\Attribute;
-use Lavender\Support\Facades\Relationship;
+use Lavender\Database\Attribute;
+use Lavender\Database\Relationship;
 use Lavender\Support\Traits\AttributeTrait;
 use Lavender\Support\Traits\RelationshipTrait;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,7 +32,7 @@ class MigrateEntity extends Command
      *
      * @var string
      */
-    protected $description = 'Create migrations for entity tables.';
+    protected $description = 'Create migrations for entity tables';
 
     /**
      * The migration creator instance.
@@ -151,11 +151,9 @@ class MigrateEntity extends Command
      */
     protected function updateEntity($entity)
     {
-        $config = $entity->getConfig();
-
         $action = \Schema::hasTable($entity->getTable()) ? 'update' : 'create';
 
-        $this->migrations[$action][$entity->getTable()]['cols'] = $this->buildTable($entity, $config);
+        $this->migrations[$action][$entity->getTable()]['cols'] = $this->buildTable($entity);
 
         if($action == 'create' && $entity->timestamps) $this->migrations[$action][$entity->getTable()]['cols'][] = '$table->timestamps();';
     }
@@ -165,24 +163,24 @@ class MigrateEntity extends Command
      *
      * @return array
      */
-    protected function buildTable($entity, $config)
+    protected function buildTable($entity)
     {
         // Prepare pivot tables and one-to-* columns
-        $config = $this->prepareRelationships($entity->getEntity(), $config);
+        $attributes = $this->prepareRelationships($entity);
 
         // Allow other services to append schema
         foreach(event(new SchemaPrepare($entity)) as $attributes){
 
             foreach((array)$attributes as $key => $value){
 
-                $config['attributes'][$key] = $this->applyAttributeDefaults($value);
+                $attributes[$key] = $this->applyAttributeDefaults($value);
 
             }
 
         }
 
         // Append attribute columns
-        return $this->addAttributes($entity->getTable(), $config['attributes']);
+        return $this->addAttributes($entity->getTable(), $attributes);
     }
 
     protected function updatePivots()
@@ -195,9 +193,11 @@ class MigrateEntity extends Command
         }
     }
 
-    protected function prepareRelationships($entity, $config)
+    protected function prepareRelationships($entity)
     {
-        $relationships = $config['relationships'];
+        $attributes = [];
+
+        $relationships = $entity->getRelationshipConfig();
 
         foreach($relationships as $relationship){
 
@@ -205,7 +205,7 @@ class MigrateEntity extends Command
 
             $foreignKey = $this->underscore($relationship['entity']) . '_id';
 
-            $localKey = $this->underscore($entity) . '_id';
+            $localKey = $this->underscore($entity->getEntityName()) . '_id';
 
             $attribute = $this->applyAttributeDefaults(['parent' => $relationship['entity']]);
 
@@ -214,20 +214,20 @@ class MigrateEntity extends Command
             ){
                 $this->pivots[$table][$foreignKey] = $attribute;
 
-                $this->pivots[$table][$localKey] = $this->applyAttributeDefaults(['parent' => $entity]);
+                $this->pivots[$table][$localKey] = $this->applyAttributeDefaults(['parent' => $entity->__toString()]);
 
             } elseif($relationship['type'] == Relationship::HAS_ONE){
 
-                $config['attributes'][$foreignKey] = $attribute;
+                $attributes[$foreignKey] = $attribute;
 
             } elseif($relationship['type'] == Relationship::BELONGS_TO){
 
-                $config['attributes'][$foreignKey] = $attribute;
+                $attributes[$foreignKey] = $attribute;
 
             }
         }
 
-        return $config;
+        return $attributes;
     }
 
     protected function addAttributes($table, $attributes)
