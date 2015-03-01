@@ -144,11 +144,17 @@ class Kernel implements WorkflowKernel
 
     protected function _getForms($workflow)
     {
-        $forms = $this->workflowForms[$workflow];
+        if($this->exists($workflow)){
 
-        ksort($forms);
+            $forms = $this->workflowForms[$workflow];
 
-        return $forms;
+            ksort($forms);
+
+            return $forms;
+
+        }
+
+        throw new \Exception("Invalid workflow ".(string)$workflow);
     }
 
     public function getForm($workflow)

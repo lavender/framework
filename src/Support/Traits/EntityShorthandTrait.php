@@ -1,6 +1,8 @@
 <?php
 namespace Lavender\Support\Traits;
 
+use Lavender\Contracts\Entity;
+
 trait EntityShorthandTrait
 {
 
@@ -40,7 +42,7 @@ trait EntityShorthandTrait
 
     /**
      * Translates $value into Entity
-     * Expected syntax: ['entity' => ['attribute' => 'value']] or ['entity' => id]
+     * Expected syntax: ['entity' => ['attribute' => 'value']] or ['entity' => id] or ['entity' => [id, id, id]]
      *
      * @param array $value
      * @param string $entity
@@ -67,6 +69,8 @@ trait EntityShorthandTrait
     private function _make(&$value, $index, $userdata)
     {
         list($entity, $attribute) = $userdata;
+
+        var_dump($userdata, $value);
 
         $value = entity($entity)->findByAttribute($attribute, $value);
     }

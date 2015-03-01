@@ -51,7 +51,7 @@ class WorkflowFactory
 
         $this->loadForm();
 
-        return $this;
+        return clone $this;
     }
 
     /**

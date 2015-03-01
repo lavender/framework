@@ -37,7 +37,8 @@ class Renderer
             $data['type'],
             $data['value'],
             $data['options'],
-            $data['resource']
+            $data['resource'],
+            $data['resource_helper']
         );
 
         // render the comment
@@ -49,7 +50,7 @@ class Renderer
         return $html;
     }
 
-    protected function _render($type, $value, $options = [], $resource = null)
+    protected function _render($type, $value, $options = [], $resource = null, $helper = null)
     {
         //todo assert/exception: field not found
         if(!isset($this->renderers[$type])) return '';
@@ -58,9 +59,9 @@ class Renderer
 
         $resolved = app($class);
 
-        if($resource) $resource = app($resource);
+        if(is_string($resource)) $resource = app($resource);
 
-        return $resolved->$method($value, $options, $resource);
+        return $resolved->$method($value, $options, $resource, $helper);
     }
 
     protected function _renderer($type)

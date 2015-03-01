@@ -332,6 +332,8 @@ abstract class Entity extends Eloquent implements EntityContract
 
                         if($value instanceof Collection) $value = $value->all();
 
+                        if($value instanceof EntityContract) $value = [$value];
+
                         $this->$key()->saveMany($value);
 
                         break;

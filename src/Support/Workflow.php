@@ -87,6 +87,9 @@ abstract class Workflow implements WorkflowContract
             'value' => null, // field value
             'options' => ['id' => null], // field options
             'resource' => null,
+            'resource_helper' => function($resource){
+                return $resource;
+            },
 
         ], $data);
     }
