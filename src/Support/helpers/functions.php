@@ -199,7 +199,15 @@ if ( ! function_exists('attr'))
 
             if(is_array($value)) $value = json_encode($value);
 
-            if($value) $html[$key] = $key.'="'.e($value).'"';
+            if(is_bool($value) && $value){
+
+                $html[$key] = $key;
+
+            } elseif($value){
+
+                $html[$key] = $key.'="'.e($value).'"';
+
+            }
 
         }
 

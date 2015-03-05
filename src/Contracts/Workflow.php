@@ -19,6 +19,14 @@ interface Workflow
 
 
     /**
+     * Get array of fields.
+     *
+     * @return array
+     */
+    public function getFields();
+
+
+    /**
      * Get data from an existing field.
      *
      * @param string $field

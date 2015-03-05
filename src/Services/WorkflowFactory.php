@@ -65,6 +65,8 @@ class WorkflowFactory
     {
         try{
 
+            unset($request['_token']);
+
             $workflow = $this->resolve(['request' => $request]);
 
             // flash input into session

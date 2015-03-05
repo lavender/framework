@@ -33,6 +33,17 @@ abstract class Workflow implements WorkflowContract
 
 
     /**
+     * Get array of fields.
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return array_keys($this->fields);
+    }
+
+
+    /**
      * Get data from an existing field.
      *
      * @param string $field
@@ -69,7 +80,7 @@ abstract class Workflow implements WorkflowContract
         return array_merge([
 
             /** Rendering config */
-            'default' => '',
+            'default' => null, // todo test null vs empty
             'position' => 0,
 
             /** Handler config */
@@ -87,6 +98,7 @@ abstract class Workflow implements WorkflowContract
             'value' => null, // field value
             'options' => ['id' => null], // field options
             'resource' => null,
+            'use_default' => false,// bool|string, adds checkbox to disable field
 
         ], $data);
     }

@@ -39,6 +39,12 @@ class Renderer
             $data['label_options']
         );
 
+        if($data['use_default'] && $data['value'] === null){
+
+            $data['options']['disabled'] = true;
+
+        }
+
         // render the field
         $html .= $this->_render(
             $data['type'],
@@ -46,6 +52,17 @@ class Renderer
             $data['options'],
             $data['resource']
         );
+
+        if($data['use_default']){
+
+            $html .= $this->use_default(
+                $data['use_default'],
+                $field.'-use_default',
+                $data['options']['id'],
+                $data['value']
+            );
+
+        }
 
         // render the comment
         $html .= $this->comment($data['comment']);
@@ -88,7 +105,7 @@ class Renderer
         throw new \Exception("Undefined method \"{$method}\".");
     }
 
-    protected function label($id, $label, $options)
+    protected function label($id, $label, $options = [])
     {
         if($label){
 
@@ -98,6 +115,29 @@ class Renderer
         }
 
         return '';
+    }
+
+    protected function use_default($label, $id, $parent_id, $value)
+    {
+        if(!is_string($label)) $label = "Use Default";
+
+        $checkbox_options = [
+            'id' => $id,
+            'class' => 'field-use-default',
+            'data-parent' => $parent_id,
+        ];
+
+        if($value === null){
+
+            $checkbox_options['checked'] = true;
+
+        }
+
+        $html[] = $this->_render('checkbox', null, $checkbox_options);
+
+        $html[] = $this->label($id, $label);
+
+        return "<span class='use_default'>".implode(PHP_EOL, $html)."</span>";
     }
 
     protected function comment($comment)
