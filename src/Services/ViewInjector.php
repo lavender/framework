@@ -12,7 +12,6 @@ class ViewInjector
     public function append($section, array $config)
     {
         $config = array_merge([
-            'content' => null,
             'config' => null,
             'layout' => null,
             'script' => null,
@@ -25,13 +24,24 @@ class ViewInjector
 
         if($html = $this->renderByType($config)){
 
-            view()->inject($section, $html . PHP_EOL . '@parent');
+            $this->inject($section, $html);
 
         }
+    }
+    /**
+     * Inject views into layouts
+     *
+     * @param $section
+     * @param $html
+     */
+    public function inject($section, $html)
+    {
+        view()->inject($section, $html . PHP_EOL . '@parent');
     }
 
     /**
      * Render the layout html by type (see View/config/defaults.php)
+     * todo allow application to implement renderers
      * @param $config
      * @return bool
      */
@@ -51,7 +61,7 @@ class ViewInjector
 
         } elseif($config['menu']){
 
-            // todo allow application to implement renderers
+            // todo move to app
             return menu($config['menu']);
 
         } elseif(workflow()->exists($config['workflow'])){

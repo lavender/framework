@@ -57,9 +57,30 @@ if ( ! function_exists('workflow'))
 
 if ( ! function_exists('append_section'))
 {
-    function append_section($section, array $config)
+    function append_section($section, $config)
     {
-        return app('view.injector')->append($section, $config);
+        $injector = app('view.injector');
+
+        if(is_string($config)){
+
+            return $injector->inject($section, $config);
+
+        }
+
+        return $injector->append($section, $config);
+    }
+}
+
+
+if ( ! function_exists('compose_section'))
+{
+    function compose_section($layout, $section, $content)
+    {
+        view()->composer($layout,function($view) use ($section, $content){
+
+            append_section($section, $content);
+
+        });
     }
 }
 
@@ -175,6 +196,8 @@ if ( ! function_exists('attr'))
         $html = [];
 
         foreach($attrs as $key => $value){
+
+            if(is_array($value)) $value = json_encode($value);
 
             if($value) $html[$key] = $key.'="'.e($value).'"';
 

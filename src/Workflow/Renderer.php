@@ -6,9 +6,16 @@ class Renderer
 
     protected $renderers;
 
+    protected $resources;
+
     public function addRenderer($type, $renderer)
     {
         $this->renderers[$type] = $renderer;
+    }
+
+    public function addResource($type, $resource)
+    {
+        $this->resources[$type] = $resource;
     }
 
     /**
@@ -17,10 +24,10 @@ class Renderer
     public function render($field, $data, $errors, $html = '')
     {
         //if null set default value
-        $this->setDefaultValue($data);
+        $data['value'] = $this->defaultValue($data);
 
         // find or create field id
-        $this->setFieldId($field, $data);
+        $data['options']['id'] = $this->fieldId($field, $data);
 
         // set field name
         $data['options']['name'] = $field;
@@ -37,8 +44,7 @@ class Renderer
             $data['type'],
             $data['value'],
             $data['options'],
-            $data['resource'],
-            $data['resource_helper']
+            $data['resource']
         );
 
         // render the comment
@@ -50,29 +56,36 @@ class Renderer
         return $html;
     }
 
-    protected function _render($type, $value, $options = [], $resource = null, $helper = null)
+    protected function _render($type, $value, $options = [], $resource = null)
     {
-        //todo assert/exception: field not found
-        if(!isset($this->renderers[$type])) return '';
+        list($renderer, $method) = $this->getClassMethod($this->renderers, $type, $type);
 
-        list($class, $method) = $this->_renderer($type);
+        if(is_string($resource)){
 
-        $resolved = app($class);
+            list($resource, $resource_method) = $this->getClassMethod($this->resources, $resource, 'toArray');
 
-        if(is_string($resource)) $resource = app($resource);
-
-        return $resolved->$method($value, $options, $resource, $helper);
-    }
-
-    protected function _renderer($type)
-    {
-        if(stristr($this->renderers[$type], '@') === false){
-
-            return [$this->renderers[$type], $type];
+            $resource = app($resource)->$resource_method();
 
         }
 
-        return explode('@', $this->renderers[$type]);
+        return app($renderer)->$method($value, $options, $resource);
+    }
+
+    protected function getClassMethod($classes, $method, $default)
+    {
+        if(isset($classes[$method])){
+
+            if(stristr($classes[$method], '@') === false){
+
+                return [$classes[$method], $default];
+
+            }
+
+            return explode('@', $classes[$method]);
+
+        }
+
+        throw new \Exception("Undefined method \"{$method}\".");
     }
 
     protected function label($id, $label, $options)
@@ -109,21 +122,25 @@ class Renderer
         return '';
     }
 
-    protected function setDefaultValue(&$data)
+    protected function defaultValue($data)
     {
         if($data['value'] === null){
 
-            $data['value'] = $data['default'];
+            return $data['default'];
 
         }
+
+        return $data['value'];
     }
 
-    protected function setFieldId($field, &$data)
+    protected function fieldId($field, $data)
     {
         if(!isset($data['options']['id'])){
 
-            $data['options']['id'] = 'field-'.$field;
+            return 'field-'.$field;
 
         }
+
+        return $data['options']['id'];
     }
 }

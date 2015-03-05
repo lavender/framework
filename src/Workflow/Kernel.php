@@ -2,6 +2,7 @@
 namespace Lavender\Workflow;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Support\Arrayable;
 use Lavender\Contracts\Workflow;
 use Lavender\Contracts\Workflow\Kernel as WorkflowKernel;
 
@@ -49,6 +50,11 @@ class Kernel implements WorkflowKernel
     protected $workflowTemplate;
 
     /**
+     * @var string
+     */
+    protected $workflowResources;
+
+    /**
      * Initialize the workflow kernel.
      *
      * @param Dispatcher $events
@@ -59,21 +65,23 @@ class Kernel implements WorkflowKernel
      */
     public function __construct(Dispatcher $events, Session $session, Renderer $renderer, Validator $validator)
     {
-        if(!isset($this->workflowTemplate)) throw new \Exception("Missing workflow template definition.");
+        if(!isset($this->workflowResources))    throw new \Exception("Missing workflow resources definition.");
 
-        if(!isset($this->workflowHandlers)) throw new \Exception("Missing workflow handlers definition.");
+        if(!isset($this->workflowTemplate))     throw new \Exception("Missing workflow template definition.");
 
-        if(!isset($this->workflowForms)) throw new \Exception("Missing workflow forms definition.");
+        if(!isset($this->workflowHandlers))     throw new \Exception("Missing workflow handlers definition.");
 
-        if(!isset($this->workflowFields)) throw new \Exception("Missing workflow fields definition.");
+        if(!isset($this->workflowForms))        throw new \Exception("Missing workflow forms definition.");
 
-        $this->events = $events;
+        if(!isset($this->workflowFields))       throw new \Exception("Missing workflow fields definition.");
 
-        $this->session = $session;
+        $this->events       = $events;
 
-        $this->renderer = $renderer;
+        $this->session      = $session;
 
-        $this->validator = $validator;
+        $this->renderer     = $renderer;
+
+        $this->validator    = $validator;
 
         foreach($this->workflowHandlers as $subscriber){
 
@@ -84,6 +92,12 @@ class Kernel implements WorkflowKernel
         foreach($this->workflowFields as $type => $renderer){
 
             $this->renderer->addRenderer($type, $renderer);
+
+        }
+
+        foreach($this->workflowResources as $type => $resource){
+
+            $this->renderer->addResource($type, $resource);
 
         }
     }
