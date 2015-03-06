@@ -143,6 +143,32 @@ class WorkflowFactory
     }
 
 
+    public function setCurrentForm($form)
+    {
+        $forms = $this->kernel->getForms($this->workflow, true);
+
+        $form = array_search($form, $forms);
+
+        if($form !== false){
+
+            $this->form = $form;
+
+            $this->updateSession();
+
+            return;
+
+        }
+
+        throw new \Exception("Invalid form ".(string)$form);
+    }
+
+
+    public function isCurrentForm($form)
+    {
+        return $form == $this->kernel->getFormClass($this->workflow, $this->form);
+    }
+
+
     public function exists($workflow)
     {
         return $this->kernel->exists($workflow);
@@ -154,6 +180,16 @@ class WorkflowFactory
         if(!isset($this->params)) $this->params = new \stdClass();
 
         foreach($params as $k => $v) $this->params->$k = $v;
+    }
+
+
+    public function reset()
+    {
+        $forms = $this->kernel->getForms($this->workflow);
+
+        $this->form = reset($forms);
+
+        $this->updateSession();
     }
 
 

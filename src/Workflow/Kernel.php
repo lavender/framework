@@ -149,11 +149,20 @@ class Kernel implements WorkflowKernel
         return $this->events->fire($workflow);
     }
 
-    public function getForms($workflow)
+    public function getForms($workflow, $with_classes = false)
     {
         $forms = $this->_getForms($workflow);
 
-        return array_keys($forms);
+        return $with_classes ? $forms : array_keys($forms);
+    }
+
+    public function getFormClass($workflow, $form)
+    {
+        $forms = $this->_getForms($workflow);
+
+        if(isset($forms[$form])) return $forms[$form];
+
+        throw new \Exception("Invalid form ".(string)$form);
     }
 
     protected function _getForms($workflow)
