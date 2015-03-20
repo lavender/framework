@@ -24,11 +24,6 @@ abstract class SharedEntity extends Shared
         if($entity->exists){
 
             $this->addData($entity->getAttributes());
-
-            $this->addData($entity->getRelationshipConfig(), function ($key, $val) use ($entity){
-
-                return $entity->$key;
-            });
         }
     }
 

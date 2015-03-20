@@ -184,6 +184,7 @@ abstract class Entity extends Eloquent implements EntityContract
 
             $thisEntity = snake_case($this->entity);
 
+            //todo use entity local/foreign keys
             $localKey = "{$thisEntity}_id";
 
             $foreignKey = "{$onEntity}_id";
@@ -293,7 +294,7 @@ abstract class Entity extends Eloquent implements EntityContract
 
     /**
      * Save various model relationships; used when creating a new entity
-     *
+     * todo move to relationship model
      * @param array $attributes
      * @return array
      * @throws \Exception Unknown relationship type

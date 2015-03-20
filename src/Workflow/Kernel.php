@@ -128,7 +128,7 @@ class Kernel implements WorkflowKernel
 
         }
 
-        return view($this->workflowTemplate)
+        return view($workflow->template ? : $this->workflowTemplate)
             ->with('options', $workflow->options)
             ->with('fields', $fields)
             ->render();

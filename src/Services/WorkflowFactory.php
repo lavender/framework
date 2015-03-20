@@ -1,9 +1,11 @@
 <?php
 namespace Lavender\Services;
 
+use Illuminate\Http\Request;
 use Lavender\Contracts\Workflow\Kernel;
 use Lavender\Exceptions\WorkflowException;
 use Illuminate\Database\QueryException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class WorkflowFactory
 {
@@ -57,11 +59,10 @@ class WorkflowFactory
     /**
      * Handle workflow form submission
      *
-     * @param array $request
+     * @param array|Request $request
      * @return mixed
-     * @throws \Exception
      */
-    public function handle(array $request)
+    public function handle(Request $request)
     {
         try{
 
@@ -73,7 +74,7 @@ class WorkflowFactory
             $this->kernel->flashInput($workflow->fields);
 
             // validate request
-            $this->kernel->validateInput($workflow->fields, $request);
+            $this->kernel->validateInput($workflow->fields, $request->all());
 
             // fire callbacks
             $this->kernel->fireEvent($workflow);
@@ -86,17 +87,23 @@ class WorkflowFactory
             // workflow validation errors
             $this->kernel->setErrors($this->workflow, $e->getErrors()->messages());
 
+            return false;
+
         } catch(QueryException $e){
 
             // database errors
-            //todo log "Database error.";
+            //todo log exception
+            throw new HttpException(500, "Database error.");
 
         } catch(\Exception $e){
 
             // general exceptions
-            //todo log $e->getMessage();
+            //todo log exception
+            throw new HttpException(500, $e->getMessage());
 
         }
+
+        return true;
     }
 
     /**

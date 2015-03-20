@@ -107,7 +107,7 @@ class Renderer
 
     protected function label($id, $label, $options = [])
     {
-        if($label){
+        if($label !== null){
 
             $options['for'] = $id;
 

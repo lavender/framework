@@ -70,8 +70,6 @@ trait EntityShorthandTrait
     {
         list($entity, $attribute) = $userdata;
 
-        var_dump($userdata, $value);
-
         $value = entity($entity)->findByAttribute($attribute, $value);
     }
 }

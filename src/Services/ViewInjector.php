@@ -13,7 +13,7 @@ class ViewInjector
     {
         $config = array_merge([
             'config' => null,
-            'layout' => null,
+            'view' => null,
             'script' => null,
             'menu' => null,
             'style' => null,
@@ -59,19 +59,14 @@ class ViewInjector
 
             return $this->style($config['style']);
 
-        } elseif($config['menu']){
-
-            // todo move to app
-            return menu($config['menu']);
-
         } elseif(workflow()->exists($config['workflow'])){
 
             return workflow($config['workflow']);
 
-        } elseif(view()->exists($config['layout'])){
+        } elseif(view()->exists($config['view'])){
 
             //todo do not pre-render
-            return view($config['layout'])->render();
+            return view($config['view'])->render();
 
         } elseif($config['config']){
 

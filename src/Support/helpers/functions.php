@@ -61,13 +61,13 @@ if ( ! function_exists('append_section'))
     {
         $injector = app('view.injector');
 
-        if(is_string($config)){
+        if(is_array($config)){
 
-            return $injector->inject($section, $config);
+            return $injector->append($section, $config);
 
         }
 
-        return $injector->append($section, $config);
+        return $injector->inject($section, $config);
     }
 }
 

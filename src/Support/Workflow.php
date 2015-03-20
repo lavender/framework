@@ -9,6 +9,8 @@ abstract class Workflow implements WorkflowContract
 
     use SerializesModels;
 
+    public $template = '';
+
     public $fields = [];
 
     public $options = ['method' => 'post'];
