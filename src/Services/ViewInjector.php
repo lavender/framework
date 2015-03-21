@@ -65,8 +65,7 @@ class ViewInjector
 
         } elseif(view()->exists($config['view'])){
 
-            //todo do not pre-render
-            return view($config['view'])->render();
+            return view($config['view']);
 
         } elseif($config['config']){
 
