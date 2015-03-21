@@ -2,11 +2,10 @@
 namespace Lavender\Workflow;
 
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Support\Arrayable;
 use Lavender\Contracts\Workflow;
 use Lavender\Contracts\Workflow\Kernel as WorkflowKernel;
 
-class Kernel implements WorkflowKernel
+abstract class Kernel implements WorkflowKernel
 {
 
     /**
@@ -32,27 +31,27 @@ class Kernel implements WorkflowKernel
     /**
      * @var array
      */
-    protected $workflowForms;
+    protected $forms = [];
 
     /**
      * @var array
      */
-    protected $workflowFields;
+    protected $fields = [];
 
     /**
      * @var array
      */
-    protected $workflowHandlers;
+    protected $handlers = [];
 
     /**
      * @var string
      */
-    protected $workflowTemplate;
+    protected $template = '';
 
     /**
-     * @var string
+     * @var array
      */
-    protected $workflowResources;
+    protected $resources = [];
 
     /**
      * Initialize the workflow kernel.
@@ -65,16 +64,6 @@ class Kernel implements WorkflowKernel
      */
     public function __construct(Dispatcher $events, Session $session, Renderer $renderer, Validator $validator)
     {
-        if(!isset($this->workflowResources))    throw new \Exception("Missing workflow resources definition.");
-
-        if(!isset($this->workflowTemplate))     throw new \Exception("Missing workflow template definition.");
-
-        if(!isset($this->workflowHandlers))     throw new \Exception("Missing workflow handlers definition.");
-
-        if(!isset($this->workflowForms))        throw new \Exception("Missing workflow forms definition.");
-
-        if(!isset($this->workflowFields))       throw new \Exception("Missing workflow fields definition.");
-
         $this->events       = $events;
 
         $this->session      = $session;
@@ -83,34 +72,17 @@ class Kernel implements WorkflowKernel
 
         $this->validator    = $validator;
 
-        foreach($this->workflowHandlers as $subscriber){
-
-            $this->events->subscribe($subscriber);
-
-        }
-
-        foreach($this->workflowFields as $type => $renderer){
-
-            $this->renderer->addRenderer($type, $renderer);
-
-        }
-
-        foreach($this->workflowResources as $type => $resource){
-
-            $this->renderer->addResource($type, $resource);
-
-        }
+        $this->register();
     }
-
 
     public function exists($workflow)
     {
-        return isset($this->workflowForms[$workflow]);
+        return isset($this->forms[$workflow]);
     }
 
-    public function resolve($workflow, $form, $params)
+    public function resolve($workflow, $params)
     {
-        $class = $this->workflowForms[$workflow][$form];
+        $class = $this->forms[$workflow];
 
         return new $class($params);
     }
@@ -128,10 +100,15 @@ class Kernel implements WorkflowKernel
 
         }
 
-        return view($workflow->template ? : $this->workflowTemplate)
+        return view($workflow->template ? : $this->template)
             ->with('options', $workflow->options)
             ->with('fields', $fields)
             ->render();
+    }
+
+    public function fireEvent(Workflow $workflow)
+    {
+        return $this->events->fire($workflow);
     }
 
     public function validateInput($fields, $request)
@@ -144,52 +121,6 @@ class Kernel implements WorkflowKernel
         return $this->session->flashInput($fields);
     }
 
-    public function fireEvent(Workflow $workflow)
-    {
-        return $this->events->fire($workflow);
-    }
-
-    public function getForms($workflow, $with_classes = false)
-    {
-        $forms = $this->_getForms($workflow);
-
-        return $with_classes ? $forms : array_keys($forms);
-    }
-
-    public function getFormClass($workflow, $form)
-    {
-        $forms = $this->_getForms($workflow);
-
-        if(isset($forms[$form])) return $forms[$form];
-
-        throw new \Exception("Invalid form ".(string)$form);
-    }
-
-    protected function _getForms($workflow)
-    {
-        if($this->exists($workflow)){
-
-            $forms = $this->workflowForms[$workflow];
-
-            ksort($forms);
-
-            return $forms;
-
-        }
-
-        throw new \Exception("Invalid workflow ".(string)$workflow);
-    }
-
-    public function getForm($workflow)
-    {
-        return $this->session->getForm($workflow);
-    }
-
-    public function setForm($workflow, $form)
-    {
-        return $this->session->setForm($workflow, $form);
-    }
-
     public function getErrors($workflow)
     {
         return $this->session->getErrors($workflow);
@@ -200,5 +131,25 @@ class Kernel implements WorkflowKernel
         return $this->session->setErrors($workflow, $errors);
     }
 
+    protected function register()
+    {
+        foreach($this->fields as $type => $renderer){
+
+            $this->renderer->addRenderer($type, $renderer);
+
+        }
+
+        foreach($this->resources as $type => $resource){
+
+            $this->renderer->addResource($type, $resource);
+
+        }
+
+        foreach($this->handlers as $subscriber){
+
+            $this->events->subscribe($subscriber);
+
+        }
+    }
 
 }

@@ -23,24 +23,6 @@ class Session
         Input::flashOnly(array_keys($flash));
     }
 
-    /**
-     * @param string $workflow
-     * @return mixed
-     */
-    public function getForm($workflow)
-    {
-        return \Session::get("workflow.{$workflow}.form", false);
-    }
-
-    /**
-     * @param string $workflow
-     * @param string $state
-     */
-    public function setForm($workflow, $state)
-    {
-        \Session::put("workflow.{$workflow}.form", $state);
-    }
-
     public function setErrors($workflow, $errors)
     {
         \Session::put("workflow.{$workflow}.errors", $errors);

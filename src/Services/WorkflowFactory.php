@@ -21,11 +21,6 @@ class WorkflowFactory
     protected $workflow;
 
     /**
-     * @var string|integer id
-     */
-    protected $form;
-
-    /**
      * @var \stdClass
      */
     protected $params;
@@ -51,8 +46,6 @@ class WorkflowFactory
 
         $this->setParams($params);
 
-        $this->loadForm();
-
         return clone $this;
     }
 
@@ -66,9 +59,7 @@ class WorkflowFactory
     {
         try{
 
-            unset($request['_token']);
-
-            $workflow = $this->resolve(['request' => $request]);
+            $workflow = $this->resolve();
 
             // flash input into session
             $this->kernel->flashInput($workflow->fields);
@@ -79,15 +70,10 @@ class WorkflowFactory
             // fire callbacks
             $this->kernel->fireEvent($workflow);
 
-            // go to next form
-            $this->nextForm();
-
         } catch(WorkflowException $e){
 
             // workflow validation errors
             $this->kernel->setErrors($this->workflow, $e->getErrors()->messages());
-
-            return false;
 
         } catch(QueryException $e){
 
@@ -102,22 +88,18 @@ class WorkflowFactory
             throw new HttpException(500, $e->getMessage());
 
         }
-
-        return true;
     }
 
     /**
      * Render the current workflow
-     * @param string $output
      * @return string
      */
-    public function render($params = [])
+    public function render()
     {
-        $output = '';
-
         try{
+            $output = '';
 
-            $workflow = $this->resolve($params);
+            $workflow = $this->resolve();
 
             $errors = $this->kernel->getErrors($this->workflow);
 
@@ -126,7 +108,7 @@ class WorkflowFactory
         } catch(\Exception $e){
 
             // todo log exception
-            $output = $e->getMessage().'<pre>'.$e->getTraceAsString().'</pre>';
+            $output = '<error>'.$e->getMessage().'</error>';
 
         }
 
@@ -134,45 +116,15 @@ class WorkflowFactory
     }
 
 
-    protected function resolve($params = [])
+    protected function resolve()
     {
-        $resolved = $this->kernel->resolve($this->workflow, $this->form, $this->params);
-
-        foreach($params as $k => $v) $resolved->$k = $v;
-
-        return $resolved;
+        return $this->kernel->resolve($this->workflow, $this->params);
     }
 
 
     public function getInstance()
     {
         return $this;
-    }
-
-
-    public function setCurrentForm($form)
-    {
-        $forms = $this->kernel->getForms($this->workflow, true);
-
-        $form = array_search($form, $forms);
-
-        if($form !== false){
-
-            $this->form = $form;
-
-            $this->updateSession();
-
-            return;
-
-        }
-
-        throw new \Exception("Invalid form ".(string)$form);
-    }
-
-
-    public function isCurrentForm($form)
-    {
-        return $form == $this->kernel->getFormClass($this->workflow, $this->form);
     }
 
 
@@ -184,57 +136,10 @@ class WorkflowFactory
 
     public function setParams(array $params)
     {
-        if(!isset($this->params)) $this->params = new \stdClass();
+        if(!isset($this->params)) $this->params = (object)[];
 
         foreach($params as $k => $v) $this->params->$k = $v;
     }
-
-
-    public function reset()
-    {
-        $forms = $this->kernel->getForms($this->workflow);
-
-        $this->form = reset($forms);
-
-        $this->updateSession();
-    }
-
-
-    protected function nextForm()
-    {
-        $forms = $this->kernel->getForms($this->workflow);
-
-        $curr = array_search($this->form, $forms);
-
-        if($form = isset($forms[$curr + 1]) ? $forms[$curr + 1] : false){
-
-            $this->form = $form;
-
-            $this->updateSession();
-
-        }
-    }
-
-    protected function loadForm()
-    {
-        $this->form = $this->kernel->getForm($this->workflow);
-
-        if($this->form === false){
-
-            $forms = $this->kernel->getForms($this->workflow);
-
-            $this->form = reset($forms);
-
-            $this->updateSession();
-        }
-    }
-
-
-    protected function updateSession()
-    {
-        $this->kernel->setForm($this->workflow, $this->form);
-    }
-
 
     public function __toString()
     {
