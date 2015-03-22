@@ -84,7 +84,7 @@ abstract class Kernel implements WorkflowKernel
     {
         $class = $this->forms[$workflow];
 
-        return new $class($params);
+        return app()->make($class, [$params]);
     }
 
     public function render(Workflow $workflow, $errors)
