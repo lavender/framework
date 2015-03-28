@@ -16,11 +16,6 @@ abstract class Workflow implements WorkflowContract
     public $options = ['method' => 'post'];
 
 
-    /**
-     * Create a new workflow instance.
-     */
-    abstract public function __construct($params);
-
 
     /**
      * Add a field to the workflow

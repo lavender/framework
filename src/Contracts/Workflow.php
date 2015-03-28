@@ -3,11 +3,6 @@ namespace Lavender\Contracts;
 
 interface Workflow
 {
-    /**
-     * Create a new workflow instance.
-     */
-    public function __construct($params);
-
 
     /**
      * Add a field to the workflow.

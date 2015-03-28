@@ -30,7 +30,14 @@ class Renderer
         $data['options']['id'] = $this->fieldId($field, $data);
 
         // set field name
-        $data['options']['name'] = $field;
+        if(!isset($data['options']['name'])) $data['options']['name'] = $field;
+
+        // set disabled if using default
+        if($data['use_default'] && $data['value'] === null){
+
+            $data['options']['disabled'] = true;
+
+        }
 
         // render the label
         $html .= $this->label(
@@ -38,12 +45,6 @@ class Renderer
             $data['label'],
             $data['label_options']
         );
-
-        if($data['use_default'] && $data['value'] === null){
-
-            $data['options']['disabled'] = true;
-
-        }
 
         // render the field
         $html .= $this->_render(
