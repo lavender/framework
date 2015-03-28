@@ -303,7 +303,7 @@ class MigrateEntity extends Command
                     $result = '$table->integer("' . $column . '")->default(' . (integer)$default . ');';
                     break;
                 case Attribute::DECIMAL:
-                    $result = '$table->decimal("' . $column . '", 12, 4)->default("' . $default . '");';
+                    $result = '$table->decimal("' . $column . '", 12, 4)->default("' . (float)$default . '");';
                     break;
                 case Attribute::DATE:
                 case 'datetime':
