@@ -79,7 +79,8 @@ class WorkflowFactory
 
             // database errors
             //todo log exception
-            throw new HttpException(500, "Database error.");
+            throw new HttpException(500, $e->getMessage());
+            //throw new HttpException(500, "Database error.");
 
         } catch(\Exception $e){
 
