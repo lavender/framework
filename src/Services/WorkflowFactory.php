@@ -70,10 +70,16 @@ class WorkflowFactory
             // fire callbacks
             $this->kernel->fireEvent($workflow);
 
+            // return success
+            return true;
+
         } catch(WorkflowException $e){
 
             // workflow validation errors
             $this->kernel->setErrors($this->workflow, $e->getErrors()->messages());
+
+            // return failure
+            return false;
 
         } catch(QueryException $e){
 
