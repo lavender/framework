@@ -300,10 +300,12 @@ class MigrateEntity extends Command
                 case Attribute::BOOL:
                 case Attribute::INTEGER:
                 case 'integer':
-                    $result = '$table->integer("' . $column . '")->default(' . (integer)$default . ');';
+                    if($nullable) $result = '$table->integer("' . $column . '")->nullable();';
+                    else $result = '$table->integer("' . $column . '")->default(' . (integer)$default . ');';
                     break;
                 case Attribute::DECIMAL:
-                    $result = '$table->decimal("' . $column . '", 12, 4)->default("' . (float)$default . '");';
+                    if($nullable) $result = '$table->decimal("' . $column . '", 12, 4)->nullable();';
+                    else $result = '$table->decimal("' . $column . '", 12, 4)->default("' . (float)$default . '");';
                     break;
                 case Attribute::DATE:
                 case 'datetime':
