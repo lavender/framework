@@ -336,28 +336,6 @@ class MigrateEntity extends Command
     }
 
     /**
-     * Array merge recursive
-     * @param array $arr1
-     * @param array $arr2
-     * @return array
-     */
-    protected function merge($arr1, $arr2)
-    {
-        if(!is_array($arr1) || !is_array($arr2)){
-            return $arr2;
-        }
-
-        foreach($arr2 as $key => $val2){
-
-            $val1 = isset($arr1[$key]) ? $arr1[$key] : null;
-
-            $arr1[$key] = $this->merge($val1, $val2);
-        }
-
-        return $arr1;
-    }
-
-    /**
      * Get the path to the migration directory.
      *
      * @return string
