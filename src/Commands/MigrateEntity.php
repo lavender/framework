@@ -347,9 +347,11 @@ class MigrateEntity extends Command
             return $arr2;
         }
 
-        foreach($arr2 as $key => $val){
+        foreach($arr2 as $key => $val2){
 
-            $arr1[$key] = $this->merge(@$arr1[$key], $val);
+            $val1 = isset($arr1[$key]) ? $arr1[$key] : null;
+
+            $arr1[$key] = $this->merge($val1, $val2);
         }
 
         return $arr1;
