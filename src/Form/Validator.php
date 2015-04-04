@@ -1,17 +1,17 @@
 <?php
-namespace Lavender\Workflow;
+namespace Lavender\Form;
 
-use Lavender\Exceptions\WorkflowException;
+use Lavender\Exceptions\FormException;
 
 class Validator
 {
 
     /**
-     * Validate workflow forms
+     * Validate form
      *
      * @param array $fields
      * @param array $request
-     * @throws WorkflowException
+     * @throws FormException
      */
     public function run(array $fields, array $request)
     {
@@ -27,7 +27,7 @@ class Validator
 
         if ($validator->fails()){
 
-            throw new WorkflowException("Validator failed", $validator);
+            throw new FormException("Validator failed", $validator);
         }
     }
 

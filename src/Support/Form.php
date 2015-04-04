@@ -2,9 +2,9 @@
 namespace Lavender\Support;
 
 use Illuminate\Queue\SerializesModels;
-use Lavender\Contracts\Workflow as WorkflowContract;
+use Lavender\Contracts\Form as FormContract;
 
-abstract class Workflow implements WorkflowContract
+abstract class Form implements FormContract
 {
 
     use SerializesModels;
@@ -18,7 +18,7 @@ abstract class Workflow implements WorkflowContract
 
 
     /**
-     * Add a field to the workflow
+     * Add a field to the form
      *
      * @param $field
      * @param array $data

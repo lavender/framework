@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Workflow;
+namespace Lavender\Form;
 
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\MessageBag;
@@ -23,14 +23,14 @@ class Session
         Input::flashOnly(array_keys($flash));
     }
 
-    public function setErrors($workflow, $errors)
+    public function setErrors($form, $errors)
     {
-        \Session::put("workflow.{$workflow}.errors", $errors);
+        \Session::put("form.{$form}.errors", $errors);
     }
 
-    public function getErrors($workflow)
+    public function getErrors($form)
     {
-        return \Session::pull("workflow.{$workflow}.errors", new MessageBag([]));
+        return \Session::pull("form.{$form}.errors", new MessageBag([]));
     }
 
 }

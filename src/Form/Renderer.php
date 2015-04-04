@@ -1,5 +1,5 @@
 <?php
-namespace Lavender\Workflow;
+namespace Lavender\Form;
 
 class Renderer
 {

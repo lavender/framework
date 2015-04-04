@@ -12,9 +12,9 @@ Lavender is open-sourced software licensed under the [MIT license](http://openso
 
 Lavender's Entity model makes it easy to create and extend entities without having to deal with managing rewrite conflicts, writing database migrations or manually creating relationships. [Just update the entity config!](https://github.com/lavender/lavender/blob/master/config/entity.php) You can use the Lavender service provider in your package to merge package config.
 
-##### Workflows
+##### Forms
 
-The Workflow service allows packages to collaborate on a single user workflow without complicated class rewrites and layout injection logic. Workflows are event-driven forms which are used by Lavender for the shopping cart, checkout, various forms, etc.
+The Form service allows packages to collaborate on a form (such as checkout, login, or the shopping cart) without complicated class rewrites and layout injection logic.
 
 ##### Scope
 

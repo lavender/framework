@@ -2,12 +2,12 @@
 namespace Lavender\Services;
 
 use Illuminate\Http\Request;
-use Lavender\Contracts\Workflow\Kernel;
-use Lavender\Exceptions\WorkflowException;
+use Lavender\Contracts\Form\Kernel;
+use Lavender\Exceptions\FormException;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class WorkflowFactory
+class FormFactory
 {
 
     /**
@@ -18,7 +18,7 @@ class WorkflowFactory
     /**
      * @var string name
      */
-    protected $workflow;
+    protected $form;
 
     /**
      * @var \stdClass
@@ -34,15 +34,15 @@ class WorkflowFactory
     }
 
     /**
-     * Get the evaluated view contents for the given workflow.
+     * Get the evaluated view contents for the given form.
      *
-     * @param  string $workflow
+     * @param  string $form
      * @param array $params
      * @return $this
      */
-    public function make($workflow, $params = [])
+    public function make($form, $params = [])
     {
-        $this->workflow = $workflow;
+        $this->form = $form;
 
         $this->setParams($params);
 
@@ -50,7 +50,7 @@ class WorkflowFactory
     }
 
     /**
-     * Handle workflow form submission
+     * Handle form form submission
      *
      * @param array|Request $request
      * @return mixed
@@ -59,24 +59,24 @@ class WorkflowFactory
     {
         try{
 
-            $workflow = $this->resolve();
+            $form = $this->resolve();
 
             // flash input into session
-            $this->kernel->flashInput($workflow->fields);
+            $this->kernel->flashInput($form->fields);
 
             // validate request
-            $this->kernel->validateInput($workflow->fields, $request->all());
+            $this->kernel->validateInput($form->fields, $request->all());
 
             // fire callbacks
-            $this->kernel->fireEvent($workflow);
+            $this->kernel->fireEvent($form);
 
             // return success
             return true;
 
-        } catch(WorkflowException $e){
+        } catch(FormException $e){
 
-            // workflow validation errors
-            $this->kernel->setErrors($this->workflow, $e->getErrors()->messages());
+            // form validation errors
+            $this->kernel->setErrors($this->form, $e->getErrors()->messages());
 
             // return failure
             return false;
@@ -98,7 +98,7 @@ class WorkflowFactory
     }
 
     /**
-     * Render the current workflow
+     * Render the current form
      * @return string
      */
     public function render()
@@ -106,11 +106,11 @@ class WorkflowFactory
         try{
             $output = '';
 
-            $workflow = $this->resolve();
+            $form = $this->resolve();
 
-            $errors = $this->kernel->getErrors($this->workflow);
+            $errors = $this->kernel->getErrors($this->form);
 
-            $output = $this->kernel->render($workflow, $errors);
+            $output = $this->kernel->render($form, $errors);
 
         } catch(\Exception $e){
 
@@ -123,9 +123,9 @@ class WorkflowFactory
     }
 
 
-    protected function resolve()
+    public function resolve()
     {
-        return $this->kernel->resolve($this->workflow, $this->params);
+        return $this->kernel->resolve($this->form, $this->params);
     }
 
 
@@ -135,9 +135,9 @@ class WorkflowFactory
     }
 
 
-    public function exists($workflow)
+    public function exists($form)
     {
-        return $this->kernel->exists($workflow);
+        return $this->kernel->exists($form);
     }
 
 

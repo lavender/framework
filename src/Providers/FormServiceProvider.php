@@ -3,7 +3,7 @@ namespace Lavender\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class WorkflowServiceProvider extends ServiceProvider
+class FormServiceProvider extends ServiceProvider
 {
 
     /**
@@ -21,7 +21,7 @@ class WorkflowServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'workflow.factory',
+            'form.factory',
         ];
     }
 
@@ -32,19 +32,19 @@ class WorkflowServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // factory is used to make valid workflow instances
+        // factory is used to make valid form instances
         $this->registerFactory();
     }
 
 
     /**
-     * Register the workflow builder
+     * Register the form builder
      */
     private function registerFactory()
     {
-        $this->app->bind('workflow.factory', function ($app){
+        $this->app->bind('form.factory', function ($app){
 
-            return $app['Lavender\Services\WorkflowFactory'];
+            return $app['Lavender\Services\FormFactory'];
         });
     }
 

@@ -1,9 +1,8 @@
 <?php
 namespace Lavender\Exceptions;
 
-class WorkflowException extends \Exception
+class FormException extends \Exception
 {
-
     protected $errors;
 
     public function __construct($message = "", $errors = NULL)

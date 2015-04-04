@@ -1,11 +1,11 @@
 <?php
 namespace Lavender\Contracts;
 
-interface Workflow
+interface Form
 {
 
     /**
-     * Add a field to the workflow.
+     * Add a field to the form.
      *
      * @param $field
      * @param array $data

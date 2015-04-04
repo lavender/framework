@@ -17,7 +17,7 @@ class ViewInjector
             'script' => null,
             'menu' => null,
             'style' => null,
-            'workflow' => null,
+            'form' => null,
             'meta' => null,
             'position' => 0
         ], $config);
@@ -59,9 +59,9 @@ class ViewInjector
 
             return $this->style($config['style']);
 
-        } elseif(workflow()->exists($config['workflow'])){
+        } elseif(form()->exists($config['form'])){
 
-            return workflow($config['workflow']);
+            return form($config['form']);
 
         } elseif(view()->exists($config['view'])){
 

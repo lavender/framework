@@ -44,13 +44,13 @@ if ( ! function_exists('entity'))
 }
 
 
-if ( ! function_exists('workflow'))
+if ( ! function_exists('form'))
 {
-    function workflow($workflow = null, $params = [])
+    function form($form = null, $params = [])
     {
-        if($workflow === null) return Workflow::getInstance();
+        if($form === null) return Form::getInstance();
 
-        return Workflow::make($workflow, $params);
+        return Form::make($form, $params);
     }
 }
 

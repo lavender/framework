@@ -1,11 +1,11 @@
 <?php
-namespace Lavender\Workflow;
+namespace Lavender\Form;
 
 use Illuminate\Contracts\Events\Dispatcher;
-use Lavender\Contracts\Workflow;
-use Lavender\Contracts\Workflow\Kernel as WorkflowKernel;
+use Lavender\Contracts\Form;
+use Lavender\Contracts\Form\Kernel as FormKernel;
 
-abstract class Kernel implements WorkflowKernel
+abstract class Kernel implements FormKernel
 {
 
     /**
@@ -54,7 +54,7 @@ abstract class Kernel implements WorkflowKernel
     protected $resources = [];
 
     /**
-     * Initialize the workflow kernel.
+     * Initialize the form kernel.
      *
      * @param Dispatcher $events
      * @param Session $session
@@ -75,40 +75,40 @@ abstract class Kernel implements WorkflowKernel
         $this->register();
     }
 
-    public function exists($workflow)
+    public function exists($form)
     {
-        return isset($this->forms[$workflow]);
+        return isset($this->forms[$form]);
     }
 
-    public function resolve($workflow, $params)
+    public function resolve($form, $params)
     {
-        $class = $this->forms[$workflow];
+        $class = $this->forms[$form];
 
         return app()->make($class, [$params]);
     }
 
-    public function render(Workflow $workflow, $errors)
+    public function render(Form $form, $errors)
     {
         $fields = [];
 
         // sort fields by 'position'
-        sort_children($workflow->fields);
+        sort_children($form->fields);
 
-        foreach($workflow->fields as $field => $data){
+        foreach($form->fields as $field => $data){
 
             $fields[] = $this->renderer->render($field, $data, $errors->get($field));
 
         }
 
-        return view($workflow->template ? : $this->template)
-            ->with('options', $workflow->options)
+        return view($form->template ? : $this->template)
+            ->with('options', $form->options)
             ->with('fields', $fields)
             ->render();
     }
 
-    public function fireEvent(Workflow $workflow)
+    public function fireEvent(Form $form)
     {
-        return $this->events->fire($workflow);
+        return $this->events->fire($form);
     }
 
     public function validateInput($fields, $request)
@@ -121,14 +121,19 @@ abstract class Kernel implements WorkflowKernel
         return $this->session->flashInput($fields);
     }
 
-    public function getErrors($workflow)
+    public function getForms()
     {
-        return $this->session->getErrors($workflow);
+        return $this->forms;
     }
 
-    public function setErrors($workflow, $errors)
+    public function getErrors($form)
     {
-        return $this->session->setErrors($workflow, $errors);
+        return $this->session->getErrors($form);
+    }
+
+    public function setErrors($form, $errors)
+    {
+        return $this->session->setErrors($form, $errors);
     }
 
     protected function register()
