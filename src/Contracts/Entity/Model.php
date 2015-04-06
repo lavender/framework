@@ -834,14 +834,6 @@ interface Model
     public static function reguard();
 
     /**
-     * Set "unguard" to a given state.
-     *
-     * @param  bool  $state
-     * @return void
-     */
-    public static function setUnguardState($state);
-
-    /**
      * Determine if the given attribute may be mass assigned.
      *
      * @param  string  $key
