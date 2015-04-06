@@ -24,11 +24,6 @@ abstract class Kernel implements FormKernel
     protected $renderer;
 
     /**
-     * @var Validator
-     */
-    protected $validator;
-
-    /**
      * @var array
      */
     protected $forms = [];
@@ -59,18 +54,15 @@ abstract class Kernel implements FormKernel
      * @param Dispatcher $events
      * @param Session $session
      * @param Renderer $renderer
-     * @param Validator $validator
      * @throws \Exception
      */
-    public function __construct(Dispatcher $events, Session $session, Renderer $renderer, Validator $validator)
+    public function __construct(Dispatcher $events, Session $session, Renderer $renderer)
     {
         $this->events       = $events;
 
         $this->session      = $session;
 
         $this->renderer     = $renderer;
-
-        $this->validator    = $validator;
 
         $this->register();
     }
@@ -111,17 +103,7 @@ abstract class Kernel implements FormKernel
         return $this->events->fire($form);
     }
 
-    public function validateInput($fields, $request)
-    {
-        return $this->validator->run($fields, $request);
-    }
-
-    public function flashInput(array $fields)
-    {
-        return $this->session->flashInput($fields);
-    }
-
-    public function getForms()
+    public function all()
     {
         return $this->forms;
     }

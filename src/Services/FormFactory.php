@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Lavender\Contracts\Form\Kernel;
 use Lavender\Exceptions\FormException;
 use Illuminate\Database\QueryException;
+use Lavender\Http\FormRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FormFactory
@@ -52,20 +53,19 @@ class FormFactory
     /**
      * Handle form form submission
      *
-     * @param array|Request $request
+     * @param FormRequest $request
      * @return mixed
      */
-    public function handle(Request $request)
+    public function handle(FormRequest $request)
     {
         try{
 
             $form = $this->resolve();
 
-            // flash input into session
-            $this->kernel->flashInput($form->fields);
-
             // validate request
-            $this->kernel->validateInput($form->fields, $request->all());
+            $request->validate($form->fields);
+
+            $form->request = $request;
 
             // fire callbacks
             $this->kernel->fireEvent($form);

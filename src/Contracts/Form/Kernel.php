@@ -11,16 +11,12 @@ interface Kernel
 
     public function render(Form $form, $errors);
 
-    public function validateInput($fields, $request);
-
-    public function flashInput(array $fields);
-
     public function fireEvent(Form $form);
 
     public function getErrors($form);
 
     public function setErrors($form, $errors);
 
-    public function getForms();
+    public function all();
 
 }

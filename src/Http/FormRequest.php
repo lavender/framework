@@ -1,40 +1,119 @@
 <?php
 namespace Lavender\Http;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidatesWhenResolvedTrait;
-use Illuminate\Contracts\Validation\ValidatesWhenResolved;
+use Illuminate\Support\Facades\Input;
+use Lavender\Exceptions\FormException;
 
-class FormRequest extends Request implements ValidatesWhenResolved
+class FormRequest extends Request
 {
-    use ValidatesWhenResolvedTrait;
-
 
     /**
-     * The key to be used for the view error bag.
+     * Validate the class instance.
      *
-     * @var string
+     * @param array $fields
+     * @throws FormException
      */
-    protected $errorBag = 'default';
+    public function validate(array $fields)
+    {
+        $this->flashInput($fields);
+
+        $rules = $this->getValidationRules($fields);
+
+        $validator = $this->getValidatorInstance($rules);
+
+        if($validator->fails()){
+
+            $this->failedValidation($validator);
+        }
+    }
 
     /**
-     * The input keys that should not be flashed on redirect.
+     * Initialize the form request with data from the given request.
      *
-     * @var array
+     * @param  Request  $request
+     * @return void
      */
-    protected $dontFlash = ['password', 'password_confirmation'];
+    public function setRequest(Request $request)
+    {
+        $files = $request->files->all();
+
+        $files = is_array($files) ? array_filter($files) : $files;
+
+        $this->initialize(
+            $request->query->all(), $request->request->all(), $request->attributes->all(),
+            $request->cookies->all(), $files, $request->server->all(), $request->getContent()
+        );
+
+        if ($session = $request->getSession()){
+
+            $this->setSession($session);
+
+        }
+
+        $this->setUserResolver($request->getUserResolver());
+
+        $this->setRouteResolver($request->getRouteResolver());
+    }
+
+    /**
+     * Flash only fields where flash = true
+     *
+     * @param array $fields
+     */
+    protected function flashInput(array $fields)
+    {
+        $flash = array_where($fields, function($key, $config){
+
+            return $config['flash'];
+
+        });
+
+        Input::flashOnly(array_keys($flash));
+    }
+
+    /**
+     * Get the validation rules for the request.
+     *
+     * @return \Illuminate\Validation\Validator
+     */
+    protected function getValidationRules(array $fields)
+    {
+        $rules = [];
+
+        foreach($fields as $field => $data){
+
+            if($data['validate']) $rules[$field] = $data['validate'];
+
+        }
+
+        return $rules;
+    }
 
     /**
      * Get the validator instance for the request.
      *
      * @return \Illuminate\Validation\Validator
      */
-    protected function getValidatorInstance()
+    protected function getValidatorInstance($rules)
     {
+        $factory = app('Illuminate\Validation\Factory');
 
+        return $factory->make($this->all(), $rules);
     }
 
-
+    /**
+     * Handle a failed validation attempt.
+     *
+     * @param  Validator $validator
+     * @return void
+     * @throws FormException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new FormException("Validator failed", $validator);
+    }
 
 
 }
