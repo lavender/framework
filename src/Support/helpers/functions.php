@@ -215,3 +215,27 @@ if ( ! function_exists('attr'))
     }
 }
 
+if ( ! function_exists('mailer'))
+{
+    /**
+     * @param $email
+     * @param $name
+     * @param $subject
+     * @param $template
+     * @param array $params
+     */
+    function mailer($email, $name, $subject, $template, array $params = [])
+    {
+        app('mailer')->queueOn(
+            'default',
+            $template,
+            $params,
+            function ($message) use ($email, $name, $subject){
+                $message
+                    ->to($email, $name)
+                    ->subject($subject);
+            }
+        );
+    }
+}
+

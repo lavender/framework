@@ -5,12 +5,13 @@ use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Passwords\DatabaseTokenRepository as DbRepository;
 
+
 class PasswordResetServiceProvider extends ServiceProvider
 {
 
     /**
      * Indicates if loading of the provider is deferred.
-     *
+     * todo support multiple auth types or move to application
      * @var bool
      */
     protected $defer = true;
