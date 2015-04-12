@@ -3,6 +3,7 @@ namespace Lavender\Auth;
 
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Mail;
 
 // todo move to application
 class Password
@@ -38,12 +39,13 @@ class Password
      */
     protected function sendEmail($account, $token)
     {
-        mailer(
-            $account->email,
-            $account->username,
-            trans('account.email.password_reset.subject'),
+        Mail::queue(
             config('store.email_reset_password'),
-            compact('account', 'token')
+            compact('account', 'token'),
+            function ($message) use ($account) {
+                $message->to($account->email, $account->username)
+                    ->subject(trans('account.email.password_reset.subject'));
+            }
         );
     }
 
@@ -75,11 +77,11 @@ class Password
     {
         $token = $this->generateToken();
 
-        $values = array(
+        $values = [
             'email' => $account->getEmailForPasswordReset(),
             'token' => $token,
             'created_at' => new \DateTime
-        );
+        ];
 
         $reminder = $this->getReminder()->fill($values);
 
