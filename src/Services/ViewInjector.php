@@ -59,6 +59,10 @@ class ViewInjector
 
             return $this->style($config['style']);
 
+        } elseif($config['menu']){
+
+            return menu($config['menu']);
+
         } elseif(form()->exists($config['form'])){
 
             return form($config['form']);
