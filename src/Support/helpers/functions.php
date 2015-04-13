@@ -74,13 +74,23 @@ if ( ! function_exists('append_section'))
 
 if ( ! function_exists('compose_section'))
 {
-    function compose_section($layout, $section, $content)
+    function compose_section()
     {
-        view()->composer($layout,function($view) use ($section, $content){
+        $args = func_get_args();
 
-            append_section($section, $content);
+        $layout = array_shift($args);
 
-        });
+        $section = array_shift($args);
+
+        foreach($args as $config){
+
+            view()->composer($layout, function ($view) use ($section, $config){
+
+                append_section($section, $config);
+
+            });
+
+        }
     }
 }
 
@@ -203,7 +213,7 @@ if ( ! function_exists('attr'))
 
                 $html[$key] = $key;
 
-            } elseif($value){
+            } elseif($value || $key == 'value'){
 
                 $html[$key] = $key.'="'.e($value).'"';
 
