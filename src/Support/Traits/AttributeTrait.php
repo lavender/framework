@@ -9,24 +9,22 @@ trait AttributeTrait
     public function applyAttributeDefaults(array $values)
     {
         return recursive_merge([
-            /**
-             * Database
-             */
+            // Database
             'type'     => Attribute::VARCHAR,
             'default'  => null,
             'nullable' => true,
             'unique'   => false,
 
-            /**
-             * Entity
-             */
+            // Validation
+            // todo need to add support
+            'validate' => null,
+
+            // Entity
             'parent'   => false,
             'handler'   => 'Lavender\Database\Attribute',
 //            'before_save' => null,
 
-            /**
-             * Views
-             */
+            // Views
             'label' => null,
 //            'frontend.renderer' => null,
 //            'backend.label' => null,
