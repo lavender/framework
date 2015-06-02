@@ -119,6 +119,59 @@ if ( ! function_exists('recursive_merge'))
     }
 }
 
+if ( ! function_exists('insert_sort'))
+{
+    /**
+     * @author  Kasey Klein <[kaseyklein1@gmail.com]>
+     * Schwartzian Transforms decorates array 
+     * then runs insertion sort an de-decorates
+     *
+     * @param array $array
+     * @param string $key index used for positions
+     * @param int $pos default starting position
+     * @param array $malloc decorated array
+     * @param int $k insert start
+     * @param int $j inner interator
+     *
+     */
+    function insert_sort($array, $key = 'position')
+    {
+        $pos = 1;
+
+        $i = 0;
+
+        foreach($array as $k => $v)
+        {
+            $malloc[$i] = [$k, $v];
+
+            $i++;
+        }
+
+        for($k = 1; $k < sizeof($malloc); $k++)
+        {
+            $ele = $malloc[$k];
+
+            $j = $k;
+            
+            while ( $j > 0 && $malloc[$j - 1][1][$key] > $ele[1][$key])
+            {
+                $malloc[$j] = $malloc[$j -1];
+
+                $j = $j - 1;
+            }
+
+            $malloc[$j] = $ele;
+        }
+
+        foreach($malloc as $k => $v){
+            $newArray[$v[0]] = $v[1];
+        }
+        
+        $array = $newArray;
+        
+    }
+}
+
 
 if ( ! function_exists('sort_children'))
 {
